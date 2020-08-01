@@ -30,3 +30,26 @@
 *.exe
 *.out
 *.app
+
+target/
+tmp/
+bin/
+log/
+lib/
+ext/
+
+*.class
+*.DS_Store
+*.metadata
+# Package Files
+*.war
+*.ear
+
+# eclipse
+.project
+.classpath
+.settings/
+.externalToolBuilders/
+.recommenders
+.metadata
+
