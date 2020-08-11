@@ -12,9 +12,9 @@
 *.pch
 
 # Compiled Dynamic libraries
-*.so
-*.dylib
-*.dll
+#*.so
+#*.dylib
+#*.dll
 
 # Fortran module files
 *.mod
@@ -24,19 +24,21 @@
 *.lai
 *.la
 *.a
-*.lib
+#*.lib
 
 # Executables
 *.exe
 *.out
 *.app
+ndi/src/main/c++/NDIMain
 
 target/
 tmp/
 bin/
 log/
-lib/
 ext/
+ndi/lib/
+ndi/media/
 
 *.class
 *.DS_Store

@@ -1,0 +1,39 @@
+<assembly
+    xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.3"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.3 http://maven.apache.org/xsd/assembly-1.1.3.xsd">
+    <id>${nar.arch}-${nar.os}</id>
+    <formats>
+        <format>zip</format>
+    </formats>
+    <fileSets>
+        <fileSet>
+            <directory>${project.build.directory}/nar/${project.artifactId}-${project.version}-${nar.aol}-jni/lib/${nar.aol}/jni</directory>
+            <outputDirectory>lib/${nar.aol}</outputDirectory>
+            <includes>
+                <include>*.so</include>
+                <include>*.dll</include>
+            </includes>
+            <excludes>
+                <exclude>*.xml</exclude>
+            </excludes>
+        </fileSet>
+        <fileSet>
+            <directory>${project.basedir}/src/main/lib/${nar.aol}</directory>
+            <outputDirectory>lib/${nar.aol}</outputDirectory>
+            <includes>
+                <include>*</include>
+            </includes>
+            <excludes>
+                <exclude>pkgconfig</exclude>
+                <exclude>*.xml</exclude>
+                <exclude>*.a</exclude>
+                <exclude>*.la</exclude>
+                <exclude>*.pc</exclude>
+                <exclude>*.def</exclude>
+                <exclude>*.lib</exclude>
+                <exclude>*.exe</exclude>
+            </excludes>
+        </fileSet>
+    </fileSets>
+</assembly>
