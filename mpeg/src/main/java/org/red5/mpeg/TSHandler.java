@@ -50,6 +50,11 @@ public class TSHandler {
     private native void demux(long id, byte[] data);
 
     /**
+     * Mux data into MPEG-TS via the TS handler matching the given id.
+     */
+    private native void mux(long id, byte[] data, long pts, byte type, short pid);
+
+    /**
      * Destroys the handler matching the given id.
      * 
      * @param id
@@ -90,6 +95,18 @@ public class TSHandler {
      */
     public void demux(byte[] data) {
         demux(handlerId, data);
+    }
+
+    /**
+     * Mux TS data. If data is muxed, it is returned via the receiver.
+     * 
+     * @param data
+     * @param pts presentation timestamp
+     * @param type stream type
+     * @param pid 
+     */
+    public void mux(byte[] data, long pts, byte type, short pid) {
+        mux(handlerId, data, pts, type, pid);
     }
 
     /**

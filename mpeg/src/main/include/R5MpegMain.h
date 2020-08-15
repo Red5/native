@@ -18,12 +18,23 @@
 
 // phoboslabs mpeg decoder
 #include "pl_mpeg.h"
-// Unit-X mpeg-ts demuxer
+// Unit-X mpeg-ts mux/demux
 #include "mpegts_demuxer.h"
+#include "mpegts_muxer.h"
 
 #define TS_SYNC_BYTE 0x47
+
+// AAC audio
 #define TYPE_AUDIO 0x0f
+// h264 video
 #define TYPE_VIDEO 0x1b
+
+// Audio PID
+#define AUDIO_PID 257
+// Video PID
+#define VIDEO_PID 256
+// PMT PID
+#define PMT_PID 100
 
 // all the fields needed to configure the handler
 typedef struct config_t {
@@ -37,6 +48,11 @@ typedef struct config_t {
     // video
     int width = 640;
     int height = 480;
+    // mpeg-ts options
+    uint8_t pmtPid = PMT_PID;
+    uint8_t audioPid = 0;
+    uint8_t videoPid = 0;
+    uint8_t metaPid = 0;
 } config_t;
 
 // global static reference for the JVM
@@ -62,6 +78,8 @@ class TSHandler {
         std::chrono::_V2::steady_clock::time_point last_time;
         // MPEG-TS demuxer
         MpegTsDemuxer demuxer;
+        // MPEG-TS muxer
+        MpegTsMuxer *muxer;
         // debug flag
         bool debug = false;
 
@@ -90,6 +108,8 @@ class TSHandler {
         void recvData(uint16_t *data, size_t data_len);
 
         void onDemuxed(EsFrame *pEs);
+
+        void onMuxed(SimpleBuffer &rTsOutBuffer);
 
 };
 

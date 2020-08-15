@@ -264,7 +264,6 @@ public class Main {
         Main.forcedLoadPaths = forcedLoadPaths;
     }
 
-    /* testing
     public static void main(String[] args) throws InterruptedException {
         log.info("MPEG Main");
         // set debugging flag
@@ -274,7 +273,7 @@ public class Main {
             Main.loadLibrary();
             // create a configuration
             TSConfig config = new TSConfig();
-            config.name = args.length == 0 ? "Red5 Test Source" : args[0];
+            config.name = args.length == 0 ? "Red5 Mpeg" : args[0];
             TSHandler handler = TSHandler.build(config);
             log.info("Handler id: {}", handler.getId());
             TSReceiver receiver = handler.getReceiver();
@@ -295,20 +294,10 @@ public class Main {
             }, "ReceiveHandler");
             recv.setDaemon(true);
             recv.start();
-            // start sending data to be decoded
-            Thread qs = new Thread(() -> {
-                try {
-                    sender.start();
-                } catch (Throwable t) {
-                    log.warn("Exception in start", t);
-                }
-            }, "Sender");
-            qs.setDaemon(true);
-            qs.start();
+            // push testing data
+
             // wait a few ticks
-            Thread.sleep(3L * 60000L);
-            // stop
-            sender.stop();
+            Thread.sleep(60000L);
             debug = false;
             recv.join(1000L);
             log.info("Finished");
@@ -316,5 +305,5 @@ public class Main {
             System.out.println("Usage: Main [name]");
         }
     }
-    */
+
 }

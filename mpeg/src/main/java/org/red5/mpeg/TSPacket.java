@@ -35,6 +35,7 @@ public class TSPacket {
         this.payload = (short[]) payload;
         this.audio = true;
         this.video = false;
+        this.ts = false;
     }
 
     public long getTimestamp() {

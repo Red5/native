@@ -68,10 +68,29 @@ extern "C" {
         std::cout << "Init: " << handler->selfId << std::endl;
         // set the demuxer callback
         handler->demuxer.esOutCallback = std::bind(&TSHandler::onDemuxed, handler, std::placeholders::_1);
+        // Create the map defining what datatype to map to what PID
+        int pcrPid = 0;
+        std::map<uint8_t, int> streamPidMap;
+        if (handler->config->videoPid > 0) {
+            streamPidMap[TYPE_VIDEO] = handler->config->videoPid;
+            pcrPid = streamPidMap[TYPE_VIDEO];
+        }
+        if (handler->config->audioPid > 0) {
+            streamPidMap[TYPE_AUDIO] = handler->config->audioPid;
+            if (pcrPid == 0) {
+                pcrPid = streamPidMap[TYPE_AUDIO];
+            }
+        }
+        // Create the multiplexer (PID Map, PMT PID, PCR PID)
+        MpegTsMuxer mux(streamPidMap, PMT_PID, pcrPid); // if no audio-only use AUDIO_PID
+        // Provide the callback where TS packets are fed to
+        mux.tsOutCallback = std::bind(&TSHandler::onMuxed, handler, std::placeholders::_1);
+        // set the muxer onto the handler
+        handler->muxer = &mux;
         // figure out the right size for both audio and video
         size_t length = handler->config->width * handler->config->height * 3;
-        uint8_t *bytes = new uint8_t[length];
-
+        uint8_t bytes[length];
+        //
         plm_buffer_t *buffer = plm_buffer_create_with_memory(bytes, length, true);
         handler->plm = plm_create_with_buffer(buffer, true);
 	    if (handler->plm) {

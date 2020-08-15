@@ -118,6 +118,15 @@ extern "C" {
         recvData(pEs->mData->data(), pEs->mData->size());
     }
 
+    //A callback where all the TS-packets are sent from the multiplexer
+    void TSHandler::onMuxed(SimpleBuffer &rTsOutBuffer) {
+        std::cout << "Muxed data size: " << rTsOutBuffer.size() << std::endl;
+        // prepend the sync byte to allow routing on the java side
+        rTsOutBuffer.prepend((const uint8_t *) TS_SYNC_BYTE, 1);
+        // pass off to the recv to get it back over to java
+        recvData(rTsOutBuffer.data(), rTsOutBuffer.size());
+    }
+
     /**
      * Create an instance and return a usable unique identifier.
      */
@@ -149,6 +158,23 @@ extern "C" {
             if (sampleRate > 0 && channels > 0) {
                 mpegConfig->sample_rate = sampleRate;
                 mpegConfig->no_channels = channels;
+            }
+            // mpeg-ts options
+            uint8_t pmtPid = (uint8_t) env->GetByteField(config, env->GetFieldID(class_Config, "pmtPid", "B"));
+            if (pmtPid > 0) {
+                mpegConfig->pmtPid = pmtPid;
+            }
+            uint8_t audioPid = (uint8_t) env->GetByteField(config, env->GetFieldID(class_Config, "audioPid", "B"));
+            if (audioPid > 0) {
+                mpegConfig->audioPid = audioPid;
+            }
+            uint8_t videoPid = (uint8_t) env->GetByteField(config, env->GetFieldID(class_Config, "videoPid", "B"));
+            if (videoPid > 0) {
+                mpegConfig->videoPid = videoPid;
+            }
+            uint8_t metaPid = (uint8_t) env->GetByteField(config, env->GetFieldID(class_Config, "metaPid", "B"));
+            if (metaPid > 0) {
+                mpegConfig->metaPid = metaPid;
             }
             // set the config on the handler
             handler->config = mpegConfig;
@@ -226,6 +252,40 @@ extern "C" {
             SimpleBuffer in;
             in.append((uint8_t*) &buf[0], buf_len);
             handler->demuxer.decode(in);
+        }
+    }
+
+    /**
+     * Mux MPEG-TS data. Resulting muxed data will be returned via callback / receiver.
+     * 
+     * @param id handler id
+     * @param data byte array holding data to mux
+     * @param pts presentation timestamp
+     * @param type stream type
+     * @param pid 
+     */
+    JNIEXPORT void JNICALL Java_org_red5_mpeg_TSHandler_mux(JNIEnv *env, jclass clazz, jlong id, jbyteArray data, jlong pts, jbyte type, jshort pid) {
+        std::cout << "Mux" << std::endl;
+        TSHandler *handler = mpeg_ctx.getHandler(id);
+        if (handler != 0) {
+            jsize buf_len = env->GetArrayLength(data);
+            jbyte* buf = (jbyte*) malloc(buf_len);
+            env->GetByteArrayRegion(data, 0, buf_len, buf);
+            // Build a frame of data (ES)
+            EsFrame esFrame;
+            esFrame.mData = std::make_shared<SimpleBuffer>();
+            // Append your ES-Data
+            esFrame.mData->append((uint8_t*) &buf[0], buf_len);
+            esFrame.mPts = pts;
+            esFrame.mDts = pts;
+            esFrame.mPcr = 0;
+            esFrame.mStreamType = type; //TYPE_AUDIO;
+            esFrame.mStreamId = 192;
+            esFrame.mPid = pid; //AUDIO_PID;
+            esFrame.mExpectedPesPacketLength = 0;
+            esFrame.mCompleted = true;
+            // Multiplex your data
+            handler->muxer->encode(esFrame);
         }
     }
 
