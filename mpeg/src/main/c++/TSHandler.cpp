@@ -39,7 +39,6 @@ extern "C" {
     void TSHandler::recvData(uint8_t *data, size_t data_len) {
         std::cout << "Received bytes size " << data_len << std::endl;
         if (receiver != nullptr) {
-            // good post about how this works http://adamish.com/blog/archives/327
             JNIEnv *env;
             int getEnvStat = jvm->GetEnv((void **) &env, JNI_VERSION_1_8);
             if (getEnvStat == JNI_EDETACHED) {
@@ -61,7 +60,6 @@ extern "C" {
             jbyteArray bytes = env->NewByteArray(data_len);
             env->SetByteArrayRegion(bytes, 0, data_len, (jbyte*) data);
             env->CallVoidMethod(receiver, receiverMethodId, bytes);
-            // can't free "data" it since the SRTReceiver is using it
             if (env->ExceptionCheck()) {
                 env->ExceptionDescribe();
             }
@@ -94,11 +92,10 @@ extern "C" {
                 // public void receive(short[] data)
                 jmethodID receiverMethodId = env->GetMethodID(receiverClass, "receive", "([S)V");
             //}
-            // create a new byte array to hold the buffer contents
+            // create a new short array to hold the buffer contents
             jshortArray shorts = env->NewShortArray(data_len);
             env->SetShortArrayRegion(shorts, 0, data_len, (jshort*) data);
             env->CallVoidMethod(receiver, receiverMethodId, shorts);
-            // can't free "data" it since the SRTReceiver is using it
             if (env->ExceptionCheck()) {
                 env->ExceptionDescribe();
             }
@@ -128,7 +125,7 @@ extern "C" {
         jlong id = maininator.create_handler();
         TSHandler *handler = mpeg_ctx.getHandler(id);
         if (handler != 0) {
-            // config for NDI from the incoming java config
+            // config for the incoming java config
             config_t *mpegConfig = (config_t*) malloc(sizeof(config_t));
             // get the configuration class
             jclass class_Config = env->GetObjectClass(config);

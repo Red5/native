@@ -7,15 +7,27 @@ public class TSPacket {
     // payload can be either byte[] or short[]
     private final Object payload;
 
+    // audio flag
     private final boolean audio;
 
+    // video flag
     private final boolean video;
+
+    // mpeg-ts flag
+    private final boolean ts;
 
     private TSPacket(long timestamp, byte[] payload) {
         this.timestamp = timestamp;
         this.payload = (byte[]) payload;
         this.audio = false;
-        this.video = true;
+        // determine if video or mpeg-ts bytes
+        if (payload[0] == (byte) 0x47) {
+            this.ts = true;
+            this.video = false;
+        } else {
+            this.ts = false;
+            this.video = true;
+        }
     }
 
     private TSPacket(long timestamp, short[] payload) {
