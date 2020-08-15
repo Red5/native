@@ -171,6 +171,8 @@
                                 <!--  -Wl,- -no-undefined fails to locate stuff in pl_mpeg.h -->
                                 <optionSet>-fPIC -fexceptions -Wl,-rpath=$$ORIGIN</optionSet>
                                 <sysLibs>
+                                    <!-- only the pl player needs these -->
+                                    <!--
                                     <sysLib>
                                         <name>SDL2</name>
                                     </sysLib>
@@ -183,12 +185,30 @@
                                     <sysLib>
                                         <name>GL</name>
                                     </sysLib>
+                                    -->
                                     <sysLib>
                                         <name>pthread</name>
                                     </sysLib>
                                 </sysLibs>
                             </linker>
                         </configuration>
+                    </plugin>
+                    <plugin>
+                        <artifactId>maven-assembly-plugin</artifactId>
+                        <configuration>
+                            <descriptors>
+                                <descriptor>src/main/assembly/archive.xml</descriptor>
+                            </descriptors>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>make-assembly</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>single</goal>
+                                </goals>
+                            </execution>
+                        </executions>
                     </plugin>
                 </plugins>
             </build>
@@ -238,6 +258,8 @@
                                     <option>/NODEFAULTLIB:LIBCMT</option>
                                     <!-- <option>/std:c++17</option> -->
                                 </options>
+                                <!-- only the pl player needs these -->
+                                <!--
                                 <libs>
                                     <lib>
                                         <name>SDL2</name>
@@ -260,17 +282,10 @@
                                         <directory>${project.basedir}/src/main/lib/${nar.aol}</directory>
                                     </lib>
                                 </libs>
+                                -->
                             </linker>
                         </configuration>
                     </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <!-- Packaging profiles -->
-        <profile>
-            <id>assemble</id>
-            <build>
-                <plugins>
                     <plugin>
                         <artifactId>maven-assembly-plugin</artifactId>
                         <configuration>
