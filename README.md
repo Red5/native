@@ -15,3 +15,6 @@ MPEG1 and MP2 codec handling (decode, encode, demux, and transcode support). The
 
 Thanks to Dominic Szablewski for the original decoder / demuxer source.
 
+## HEVC
+
+**arch/design stage**
