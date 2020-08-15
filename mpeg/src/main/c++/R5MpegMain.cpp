@@ -1,7 +1,5 @@
 #pragma once
 
-#include <cmath>
-
 // NDI "main" wrapper
 #include "R5MpegMain.h"
 
@@ -64,13 +62,15 @@ extern "C" {
     /**
      * Initialize the handler.
      */
-    void * R5MpegMain::init(void *handler_arg) {
+    void R5MpegMain::init(void *handler_arg) {
         // cast the arg back to handler
         TSHandler *handler = (TSHandler *) handler_arg;
         std::cout << "Init: " << handler->selfId << std::endl;
+        // set the demuxer callback
+        handler->demuxer.esOutCallback = std::bind(&TSHandler::onDemuxed, handler, std::placeholders::_1);
         // figure out the right size for both audio and video
-        uint8_t *bytes;
-        size_t length;
+        size_t length = handler->config->width * handler->config->height * 3;
+        uint8_t *bytes = new uint8_t[length];
 
         plm_buffer_t *buffer = plm_buffer_create_with_memory(bytes, length, true);
         handler->plm = plm_create_with_buffer(buffer, true);
@@ -82,7 +82,7 @@ extern "C" {
         }
     }
 
-    void * R5MpegMain::destroy(long id) {     
+    void R5MpegMain::destroy(long id) {     
         std::cout << "destroy" << std::endl;
         mpeg_ctx.removeHandler(id);
     }

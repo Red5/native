@@ -18,3 +18,8 @@ Thanks to Dominic Szablewski for the original decoder / demuxer source.
 ## HEVC
 
 **arch/design stage**
+
+
+## Licenses
+
+Licenses are included in the source unless otherwise specified in the readme file or located in the subdirectory for the project section.

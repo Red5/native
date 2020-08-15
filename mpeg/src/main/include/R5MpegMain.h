@@ -11,11 +11,19 @@
 #include <cstdint>
 #include <cstdio>
 #include <cstdlib>
+#include <cmath>
 #include <algorithm>
 #include <atomic>
 #include <chrono>
 
-#include <pl_mpeg.h>
+// phoboslabs mpeg decoder
+#include "pl_mpeg.h"
+// Unit-X mpeg-ts demuxer
+#include "mpegts_demuxer.h"
+
+#define TS_SYNC_BYTE 0x47
+#define TYPE_AUDIO 0x0f
+#define TYPE_VIDEO 0x1b
 
 // all the fields needed to configure the handler
 typedef struct config_t {
@@ -52,6 +60,8 @@ class TSHandler {
         std::chrono::_V2::steady_clock::time_point start_time;
         // last decode time
         std::chrono::_V2::steady_clock::time_point last_time;
+        // MPEG-TS demuxer
+        MpegTsDemuxer demuxer;
         // debug flag
         bool debug = false;
 
@@ -78,6 +88,8 @@ class TSHandler {
         void recvData(uint8_t *data, size_t data_len);
 
         void recvData(uint16_t *data, size_t data_len);
+
+        void onDemuxed(EsFrame *pEs);
 
 };
 
@@ -125,9 +137,9 @@ class R5MpegMain {
         // create an handler instance
         long create_handler();
         // initialize
-        void * init(void *handler_arg);
+        void init(void *handler_arg);
         // destroy the handler instance
-        void * destroy(long id);
+        void destroy(long id);
 };
 
 static R5MpegMain maininator;

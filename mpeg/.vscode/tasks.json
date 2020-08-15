@@ -15,7 +15,6 @@
                 "-fno-strict-aliasing",
                 "-fthreadsafe-statics",
                 "-Wl,-export-dynamic",
-                "-Wl,--no-undefined",
                 "-Wl,-rpath=$$ORIGIN",
                 "-I",
                 "${workspaceFolder}/src/main/include",
@@ -23,7 +22,6 @@
                 "/usr/lib/jvm/java-1.8.0-amazon-corretto/include",
                 "-I",
                 "/usr/lib/jvm/java-1.8.0-amazon-corretto/include/linux",
-                "${workspaceFolder}/src/main/c++/*.cpp",
                 "${file}",
                 "-L${workspaceFolder}/src/main/lib/amd64-Linux-gpp",
                 "-lSDL2",
@@ -32,7 +30,7 @@
                 "-lGL",
                 "-lpthread",
                 "-o",
-                "${fileDirname}/${fileBasenameNoExtension}"
+                "${workspaceFolder}/target/${fileBasenameNoExtension}"
             ],
             "options": {
                 "cwd": "/usr/bin"

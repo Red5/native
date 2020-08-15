@@ -45,6 +45,11 @@ public class TSHandler {
     private native boolean decodeVideo(long id, byte[] data);
 
     /**
+     * Demux MPEG-TS data via the TS handler matching the given id.
+     */
+    private native void demux(long id, byte[] data);
+
+    /**
      * Destroys the handler matching the given id.
      * 
      * @param id
@@ -76,6 +81,15 @@ public class TSHandler {
      */
     public boolean decode(short[] data) {
         return decodeAudio(handlerId, data);
+    }
+
+    /**
+     * Demux TS data. If data is demuxed, it is returned via the receiver.
+     * 
+     * @param data
+     */
+    public void demux(byte[] data) {
+        demux(handlerId, data);
     }
 
     /**

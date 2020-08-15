@@ -4,7 +4,7 @@
 
 ### Linux
 
-SDL2 and OpenGL are needed:
+SDL2 and OpenGL are needed for the player test app `pl_mpeg_player.c`; they are not needed to build the dist files.
 
 ```sh
 sudo apt install libglm-dev libglew-dev libsdl2-dev
@@ -23,3 +23,4 @@ sudo apt install libglm-dev libglew-dev libsdl2-dev
  * [JsMpeg](https://jsmpeg.com/)
  * [JsMpeg - phoboslab](https://github.com/phoboslab/jsmpeg)
  * [Mpeg decoder - phoboslab](https://github.com/phoboslab/pl_mpeg)
+ * [MPEG-TS - Unit-X](https://github.com/Unit-X/mpegts)

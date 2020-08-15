@@ -35,7 +35,7 @@ extern "C" {
         //plm_decode(plm, elapsed_time.count() / 1000.0); // send as seconds
     }
 
-    // handle / dispatch the data received
+    // hand / dispatch the data (bytes) back over to java via the receiver
     void TSHandler::recvData(uint8_t *data, size_t data_len) {
         std::cout << "Received bytes size " << data_len << std::endl;
         if (receiver != nullptr) {
@@ -71,8 +71,54 @@ extern "C" {
         }
     }
 
+    // hand / dispatch the data (shorts) back over to java via the receiver
     void TSHandler::recvData(uint16_t *data, size_t data_len) {
         std::cout << "Received shorts size " << data_len << std::endl;
+        // quick and dirty shorts to bytes
+        //uint8_t *bdata = (uint8_t *) data;
+        // short array is double the size of the bytes..
+        //recvData(bdata, data_len * 2);
+        if (receiver != nullptr) {
+            JNIEnv *env;
+            int getEnvStat = jvm->GetEnv((void **) &env, JNI_VERSION_1_8);
+            if (getEnvStat == JNI_EDETACHED) {
+                if (jvm->AttachCurrentThread((void **) &env, NULL) != 0) {
+                    std::cerr << "Failed to attach" << std::endl;
+                }
+            } else if (getEnvStat == JNI_OK) {
+            } else if (getEnvStat == JNI_EVERSION) {
+                std::cerr << "GetEnv: version not supported" << std::endl;
+            }
+            //if (receiverMethodId == nullptr) {
+                //jclass receiverClass = env->GetObjectClass(receiver);
+                // public void receive(short[] data)
+                jmethodID receiverMethodId = env->GetMethodID(receiverClass, "receive", "([S)V");
+            //}
+            // create a new byte array to hold the buffer contents
+            jshortArray shorts = env->NewShortArray(data_len);
+            env->SetShortArrayRegion(shorts, 0, data_len, (jshort*) data);
+            env->CallVoidMethod(receiver, receiverMethodId, shorts);
+            // can't free "data" it since the SRTReceiver is using it
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+            }
+            jvm->DetachCurrentThread();
+        } else {
+            std::cerr << "Java receiver is not available" << std::endl;
+        }
+    }
+
+    void TSHandler::onDemuxed(EsFrame *pEs) {
+        std::cout << "Demuxed data " << unsigned(pEs->mStreamType) << " size: " << pEs->mData->size() << std::endl;
+        if (demuxer.mPmtIsValid) {
+            // check the PMT header for our expected a/v types
+            // demuxer.mPmtHeader
+        }
+        
+        // prepend the sync byte to allow routing on the java side
+        pEs->mData->prepend((const uint8_t *) TS_SYNC_BYTE, 1);
+        // pass off to the recv to get it back over to java
+        recvData(pEs->mData->data(), pEs->mData->size());
     }
 
     /**
@@ -138,9 +184,8 @@ extern "C" {
             jsize buf_len = env->GetArrayLength(data);
             jshort* buf = (jshort*) malloc(buf_len);
             env->GetShortArrayRegion(data, 0, buf_len, buf);
-            // send the data
-            std::vector<uint16_t> sendVector(&buf[0], &buf[buf_len]);
-            handler->decodeAudio(sendVector);
+            std::vector<uint16_t> abuf(&buf[0], &buf[buf_len]);
+            handler->decodeAudio(abuf);
             return JNI_TRUE;
         }
         return JNI_FALSE;
@@ -166,6 +211,25 @@ extern "C" {
             return JNI_TRUE;
         }
         return JNI_FALSE;
+    }
+
+    /**
+     * Demux MPEG-TS data. Resulting demuxed data will be returned via callback / receiver.
+     * 
+     * @param id handler id
+     * @param data byte array holding data to demux
+     */
+    JNIEXPORT void JNICALL Java_org_red5_mpeg_TSHandler_demux(JNIEnv *env, jclass clazz, jlong id, jbyteArray data) {
+        std::cout << "Demux" << std::endl;
+        TSHandler *handler = mpeg_ctx.getHandler(id);
+        if (handler != 0) {
+            jsize buf_len = env->GetArrayLength(data);
+            jbyte* buf = (jbyte*) malloc(buf_len);
+            env->GetByteArrayRegion(data, 0, buf_len, buf);
+            SimpleBuffer in;
+            in.append((uint8_t*) &buf[0], buf_len);
+            handler->demuxer.decode(in);
+        }
     }
 
     JNIEXPORT void JNICALL Java_org_red5_mpeg_TSHandler_destroy(JNIEnv *env, jclass clazz, jlong id) {

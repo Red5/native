@@ -160,6 +160,7 @@
                                 </options>
                             </cpp>
                             <c>
+                                <!-- this player code from phoboslabs is only for testing and is not meant to be part of the distro -->
                                 <excludes>
                                     <exclude>c++/pl_mpeg_player.c</exclude>
                                 </excludes>
@@ -167,7 +168,8 @@
                             <linker>
                                 <!-- http://blog.tremily.us/posts/rpath/ -->
                                 <!--  -Wl,- -no-allow-shlib-undefined causes issue with linking with pthread in glibc -->
-                                <optionSet>-fPIC -fexceptions -Wl,--no-undefined -Wl,-rpath=$$ORIGIN</optionSet>
+                                <!--  -Wl,- -no-undefined fails to locate stuff in pl_mpeg.h -->
+                                <optionSet>-fPIC -fexceptions -Wl,-rpath=$$ORIGIN</optionSet>
                                 <sysLibs>
                                     <sysLib>
                                         <name>SDL2</name>
@@ -223,6 +225,12 @@
                                     <path>src/main/include</path>
                                 </includePaths>
                             </cpp>
+                            <c>
+                                <!-- this player code from phoboslabs is only for testing and is not meant to be part of the distro -->
+                                <excludes>
+                                    <exclude>c++/pl_mpeg_player.c</exclude>
+                                </excludes>
+                            </c>
                             <linker>
                                 <!-- https://msdn.microsoft.com/en-us/library/y0zzbyt4.aspx -->
                                 <options>
