@@ -1,0 +1,68 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "type": "shell",
+            "label": "g++ build active file",
+            "command": "/usr/bin/g++",
+            "args": [
+                "-std=c++17",
+                "-w",
+                "-g",
+                "-shared-libgcc",
+                "-fPIC",
+                "-fpermissive",
+                "-fno-strict-aliasing",
+                "-fthreadsafe-statics",
+                "-Wl,-export-dynamic",
+                "-Wl,--no-undefined",
+                "-Wl,-rpath=$$ORIGIN",
+                "-I",
+                "${workspaceFolder}/src/main/include",
+                "-I",
+                "/usr/lib/jvm/java-1.8.0-amazon-corretto/include",
+                "-I",
+                "/usr/lib/jvm/java-1.8.0-amazon-corretto/include/linux",
+                "${workspaceFolder}/src/main/c++/*.cpp",
+                "${file}",
+                "-L${workspaceFolder}/src/main/lib/amd64-Linux-gpp",
+                "-lSDL2",
+                "-lGLEW",
+                "-lGLU",
+                "-lGL",
+                "-lpthread",
+                "-o",
+                "${fileDirname}/${fileBasenameNoExtension}"
+            ],
+            "options": {
+                "cwd": "/usr/bin"
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "type": "shell",
+            "label": "cpp build active file",
+            "command": "/usr/bin/cpp",
+            "args": [
+                "-g",
+                "${file}",
+                "-I",
+                "${workspaceRoot}/src/main/include",
+                "-I",
+                "/usr/lib/jvm/java-1.8.0-amazon-corretto/include",
+                "-I",
+                "/usr/lib/jvm/java-1.8.0-amazon-corretto/include/linux",
+                "-L",
+                "${workspaceRoot}/src/main/lib",
+                "-o",
+                "${fileDirname}/${fileBasenameNoExtension}"
+            ],
+            "options": {
+                "cwd": "/usr/bin"
+            }
+        }
+    ]
+}

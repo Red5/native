@@ -1,0 +1,23 @@
+<?xml version="1.0" ?>
+<configuration scan="true" scanPeriod="300 seconds">
+  <jmxConfigurator/>
+  <appender class="ch.qos.logback.core.ConsoleAppender" name="CONSOLE">
+    <encoder>
+      <pattern>[%p] [%thread] %logger - %msg%n</pattern>
+    </encoder>
+  </appender>
+  <appender class="ch.qos.logback.core.FileAppender" name="FILE">
+    <file>mpeg.log</file>
+    <append>false</append>
+    <encoder>
+      <pattern>%d{ISO8601} [%thread] %-5level %logger{35} - %msg%n</pattern>
+    </encoder>
+  </appender>
+  <root level="DEBUG">
+    <appender-ref ref="CONSOLE"/>
+    <appender-ref ref="FILE"/>
+  </root>
+  <!--
+  <logger name="org.red5" level="TRACE"/>
+  -->
+</configuration>

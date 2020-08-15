@@ -1,0 +1,35 @@
+<assembly
+    xmlns="http://maven.apache.org/ASSEMBLY/2.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.0.0 http://maven.apache.org/xsd/assembly-2.0.0.xsd">
+    <!-- dist meaning everything for all os'es -->
+    <id>dist</id>
+    <formats>
+        <format>jar</format>
+    </formats>
+    <includeBaseDirectory>false</includeBaseDirectory>
+    <files>
+        <!-- pull in the pom.properties file to use when constructing the library name -->
+        <file>
+            <source>${project.build.directory}/maven-archiver/pom.properties</source>
+            <outputDirectory>META-INF</outputDirectory>
+        </file>
+    </files>
+    <fileSets>
+        <!-- java classes -->
+        <fileSet>
+            <directory>${project.build.directory}/classes</directory>
+            <outputDirectory></outputDirectory>
+            <excludes>
+                <exclude>*.sh</exclude>
+                <exclude>logback.xml</exclude>
+                <exclude>org.codehaus.plexus.compiler.javac.*</exclude>
+            </excludes>
+        </fileSet>
+        <!-- Unpacked OS specific binaries -->
+        <fileSet>
+            <directory>${project.build.directory}/unpacked/${project.artifactId}-${project.version}/lib</directory>
+            <outputDirectory>lib</outputDirectory>
+        </fileSet>
+    </fileSets>
+</assembly>

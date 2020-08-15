@@ -1,0 +1,35 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceFolder}/src/main/include/**",
+                "/usr/lib/jvm/java-1.8.0-amazon-corretto/include/**",
+                "/usr/lib/jvm/java-1.8.0-amazon-corretto/include/linux/**"
+            ],
+            "defines": [],
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "c11",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "gcc-x64"
+        },
+        {
+            "name": "Win64",
+            "includePath": [
+                "${workspaceFolder}\\src\\main\\include\\*",
+                "C:\\Program Files\\Java\\jdk1.8.0_112\\include\\**",
+                "C:\\msys64\\usr\\include\\*"
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE"
+            ],
+            "compilerPath": "C:\\msys64\\usr\\bin\\gcc.exe",
+            "cStandard": "c11",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "gcc-x64"
+        }
+    ],
+    "version": 4
+}
