@@ -6,36 +6,36 @@
 /* extern C used to prevent method mangling or other odd things from happening */
 extern "C" {
 
-    /**
-     * Create a handler instance.
-     */
-    long R5MpegMain::create_handler() {
-        // create the reference for this instance, so we can look it up
-        TSHandler *handler = mpeg_ctx.newHandler();
-        if (handler != 0) {
-            // get the identifier for return
-            std::cout << "TS handler created: " << handler->selfId << std::endl;       
-            return handler->selfId;
-        } else {
-            std::cerr << "Failed to create handler" << std::endl;
-        }
-        return -1;
+/**
+ * Create a handler instance.
+ */
+long R5MpegMain::create_handler() {
+    // create the reference for this instance, so we can look it up
+    TSHandler *handler = mpeg_ctx.newHandler();
+    if (handler != 0) {
+        // get the identifier for return
+        std::cout << "TS handler created: " << handler->selfId << std::endl;       
+        return handler->selfId;
+    } else {
+        std::cerr << "Failed to create handler" << std::endl;
     }
+    return -1;
+}
 
-    /**
-     * Initialize the handler.
-     */
-    bool R5MpegMain::init(void *handler_arg) {
-        // cast the arg back to handler
-        TSHandler *handler = (TSHandler *) handler_arg;
-        std::cout << "Init: " << handler->selfId << std::endl;
-        return handler->init();
-    }
+/**
+ * Initialize the handler.
+ */
+bool R5MpegMain::init(void *handler_arg) {
+    // cast the arg back to handler
+    TSHandler *handler = (TSHandler *) handler_arg;
+    std::cout << "Init: " << handler->selfId << std::endl;
+    return handler->init();
+}
 
-    void R5MpegMain::destroy(long id) {     
-        std::cout << "destroy" << std::endl;
-        mpeg_ctx.removeHandler(id);
-    }
+void R5MpegMain::destroy(long id) {     
+    std::cout << "destroy" << std::endl;
+    mpeg_ctx.removeHandler(id);
+}
 
 }
 

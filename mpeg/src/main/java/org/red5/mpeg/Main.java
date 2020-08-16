@@ -317,9 +317,11 @@ public class Main {
             while (tsDataBuffer.remaining() >= 188) {
                 // grab a chunk from the bb
                 tsDataBuffer.get(tsDataChunk);
-                log.debug("Got chunk: {}", tsDataChunk[0]);
+                log.debug("Got chunk: {} {}", Integer.toHexString(tsDataChunk[0]), tsDataChunk[0]);
                 // demux the chunk
                 handler.demux(tsDataChunk);
+                // sleep for a tick
+                Thread.sleep(100L);
             }
             log.debug("Chunk feeder finished");
             // wait a few ticks
@@ -335,7 +337,7 @@ public class Main {
     public final static byte[] intArrayToByteArray(int... ints) {
         byte[] data = new byte[ints.length];
         for (int i = 0; i < ints.length; i++) {
-            data[i] = (byte) ints[i];
+            data[i] = (byte) ((ints[i] & 0x000000FF) >> 0);
         }
         return data;
     }

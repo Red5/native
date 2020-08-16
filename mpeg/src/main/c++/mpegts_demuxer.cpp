@@ -10,6 +10,7 @@ MpegTsDemuxer::~MpegTsDemuxer() {
 }
 
 uint8_t MpegTsDemuxer::decode(SimpleBuffer &rIn) {
+    std::cout << "decode " << rIn.size() << std::endl;
     if (mRestData.size()) {
         rIn.prepend(mRestData.data(),mRestData.size());
         mRestData.clear();
@@ -18,7 +19,7 @@ uint8_t MpegTsDemuxer::decode(SimpleBuffer &rIn) {
         int lPos = rIn.pos();
         TsHeader lTsHeader;
         lTsHeader.decode(rIn);
-
+        std::cout << "decode - pid: " << lTsHeader.mPid << " pmtid: " << mPmtId << std::endl;
         // found pat & get pmt pid
         if (lTsHeader.mPid == 0 && mPmtId == 0) {
             if (lTsHeader.mAdaptationFieldControl == MpegTsAdaptationFieldType::mAdaptionOnly ||
@@ -38,9 +39,9 @@ uint8_t MpegTsDemuxer::decode(SimpleBuffer &rIn) {
                 rIn.read2Bytes();
                 mPmtId = rIn.read2Bytes() & 0x1fff;
                 mPatIsValid = true;
-#ifdef DEBUG
+//#ifdef DEBUG
                 mPatHeader.print();
-#endif
+//#endif
             }
         }
 
@@ -64,9 +65,9 @@ uint8_t MpegTsDemuxer::decode(SimpleBuffer &rIn) {
                     mStreamPidMap[mPmtHeader.mInfos[lI]->mStreamType] = mPmtHeader.mInfos[lI]->mElementaryPid;
                 }
                 mPmtIsValid = true;
-#ifdef DEBUG
+//#ifdef DEBUG
                 mPmtHeader.print();
-#endif
+//#endif
             }
         }
 
