@@ -229,6 +229,7 @@ void TSHandler::recvData(uint16_t *data, size_t data_len) {
     }
 }
 
+// callback for the MPEG-TS demuxer
 void TSHandler::onDemuxed(EsFrame *pEs) {
     std::cout << "Demuxed data " << unsigned(pEs->mStreamType) << " size: " << pEs->mData->size() << " broken? " << pEs->mBroken << std::endl;
     //auto demux = std::any_cast<std::shared_ptr<MpegTsDemuxer> &>(demuxer);
@@ -249,11 +250,9 @@ void TSHandler::onDemuxed(EsFrame *pEs) {
     }
 }
 
-//A callback where all the TS-packets are sent from the multiplexer
+// callback for the MPEG-TS muxer
 void TSHandler::onMuxed(SimpleBuffer &rTsOutBuffer) {
     std::cout << "Muxed data size: " << rTsOutBuffer.size() << std::endl;
-    // prepend the sync byte to allow routing on the java side
-    rTsOutBuffer.prepend((const uint8_t *) TS_SYNC_BYTE, 1);
     // pass off to the recv to get it back over to java
     recvData(rTsOutBuffer.data(), rTsOutBuffer.size());
 }

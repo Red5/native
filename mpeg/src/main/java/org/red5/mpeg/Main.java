@@ -267,6 +267,10 @@ public class Main {
 
     public static void main(String[] args) throws Exception {
         log.info("MPEG Main");
+        // AAC audio (15)
+        byte TYPE_AUDIO = 0x0f;
+        // h264 video (27)
+        byte TYPE_VIDEO = 0x1b;
         // set debugging flag
         debug = true;
         if (args != null && args.length > 0) {
@@ -287,12 +291,27 @@ public class Main {
             TSHandler handler = TSHandler.build(config);
             log.info("Handler id: {}", handler.getId());
             TSReceiver receiver = handler.getReceiver();
+            // write a ts file for testing post-test
+            RandomAccessFile tsOutFile = new RandomAccessFile("target/out.ts", "rw");
             // get the receiver thread
             Thread recv = new Thread(() -> {
                 do {
                     TSPacket pkt = receiver.getNext();
                     if (pkt != null) {
                         log.info("Received: {}", pkt.getPayload().length);
+                        // write a ts file for testing post-test
+                        if (pkt.isMpegTs()) {
+                            try {
+                                tsOutFile.write(pkt.getPayload());
+                            } catch (IOException e) {
+                                log.warn("Exception writing to ts output file", e);
+                            }
+                        } else {
+                            // if the payload isn't muxed, mux it
+                            byte type = pkt.isAudio() ? TYPE_AUDIO : TYPE_VIDEO;
+                            short pid = pkt.isAudio() ? config.audioPid : config.videoPid;
+                            handler.mux(pkt.getPayload(), System.currentTimeMillis(), type, pid);
+                        }
                     } else {
                         try {
                             Thread.sleep(10L);
@@ -301,6 +320,12 @@ public class Main {
                         }
                     }
                 } while (debug);
+                // close the output file
+                try {
+                    tsOutFile.close();
+                } catch (IOException e) {
+                    // log.warn("Exception closing ts output file", e);
+                }
             }, "ReceiveHandler");
             recv.setDaemon(true);
             recv.start();

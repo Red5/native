@@ -93,7 +93,7 @@ public class TSPacket {
      * @param typeId
      */
     private TSPacket(long timestamp, byte[] payload, int typeId) {
-        log.info("TSPacket - timestamp: {} typeId: {} payload size: {}", timestamp, typeId, payload);
+        log.info("TSPacket - timestamp: {} typeId: {} payload size: {}", timestamp, typeId, payload.length);
         this.timestamp = timestamp;
         this.payload = (byte[]) payload;
         this.typeId = typeId;

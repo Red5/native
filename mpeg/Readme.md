@@ -4,13 +4,19 @@
 
 The following features are targeted for this project:
 
-* [x] MPEG-TS demuxing
-* [] MPEG-TS muxing
-* [] MPEG1 video encode
-* [] MPEG1 video decode
-* [] MP2 audio encode
-* [] MP2 audio decode
-* [] WebSocket push
+[x] MPEG-TS demuxing
+
+[x] MPEG-TS muxing
+
+[ ] MPEG1 video encode
+
+[ ] MPEG1 video decode
+
+[ ] MP2 audio encode
+
+[ ] MP2 audio decode
+
+[ ] WebSocket push
 
 ## Prerequisites
 
