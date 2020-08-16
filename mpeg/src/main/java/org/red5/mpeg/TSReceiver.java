@@ -7,6 +7,11 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Receiver of packet type data.
+ * 
+ * @author Paul Gregoire
+ */
 public class TSReceiver {
 
     private static Logger log = LoggerFactory.getLogger(TSReceiver.class);
@@ -29,8 +34,37 @@ public class TSReceiver {
             //log.trace("receive {}", Arrays.toString(data));
             log.trace("receive {}", Main.byteArrayToHexString(data));
         }
-        // construct a packet and store it in the packet deque; a client id of 0 is defaulted to for client instances
+        // construct a packet and store it in the packet deque
         packets.offer(TSPacket.build(System.currentTimeMillis(), data));
+    }
+
+    /**
+     * Receive handler for incoming byte arrays with associated type identifier.
+     * 
+     * @param data
+     * @param typeId
+     */
+    public void receive(byte[] data, int typeId) {
+        if (isTrace) {
+            log.trace("receive type: {} {}", typeId, Main.byteArrayToHexString(data));
+        }
+        // construct a packet and store it in the packet deque
+        packets.offer(TSPacket.build(System.currentTimeMillis(), data, typeId));
+    }
+
+    /**
+     * Receive handler for incoming byte arrays with associated type identifier.
+     * 
+     * @param timestamp
+     * @param data
+     * @param typeId
+     */
+    public void receive(long timestamp, byte[] data, int typeId) {
+        if (isTrace) {
+            log.trace("receive @{} type: {} {}", timestamp, typeId, Main.byteArrayToHexString(data));
+        }
+        // construct a packet and store it in the packet deque
+        packets.offer(TSPacket.build(timestamp, data, typeId));
     }
 
     /**
