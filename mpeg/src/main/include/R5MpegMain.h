@@ -27,9 +27,9 @@ extern "C" {
 
 #define TS_SYNC_BYTE 0x47
 
-// AAC audio
+// AAC audio (15)
 #define TYPE_AUDIO 0x0f
-// h264 video
+// h264 video (27)
 #define TYPE_VIDEO 0x1b
 
 // Audio PID
