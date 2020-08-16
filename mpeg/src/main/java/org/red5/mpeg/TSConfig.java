@@ -16,7 +16,7 @@ public class TSConfig {
     public int sampleRate, channels;
 
     // mpeg-ts options (0 = not set)
-    public byte pmtPid, audioPid, videoPid, metaPid;
+    public short pmtPid, audioPid, videoPid, metaPid;
 
     // used for connection identification
     public int connectionId;

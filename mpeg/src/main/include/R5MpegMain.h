@@ -52,10 +52,10 @@ typedef struct config_t {
     int width = 640;
     int height = 480;
     // mpeg-ts options
-    uint8_t pmtPid = PMT_PID;
-    uint8_t audioPid = 0;
-    uint8_t videoPid = 0;
-    uint8_t metaPid = 0;
+    uint16_t pmtPid = PMT_PID;
+    uint16_t audioPid = 0;
+    uint16_t videoPid = 0;
+    uint16_t metaPid = 0;
 } config_t;
 
 // global static reference for the JVM

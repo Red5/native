@@ -140,19 +140,26 @@ uint8_t MpegTsDemuxer::decode(SimpleBuffer &rIn) {
                                                                      lPesHeader.mHeaderDataLength);
                         }
 
-                        if(mEsFrames[lTsHeader.mPid]->mData->size() == payloadLength) {
+                        if (mEsFrames[lTsHeader.mPid]->mData->size() == payloadLength) {
                             mEsFrames[lTsHeader.mPid]->mCompleted = true;
                             mEsFrames[lTsHeader.mPid]->mPid = lTsHeader.mPid;
                             EsFrame *lEsFrame = mEsFrames[lTsHeader.mPid].get();
+                            std::cout << "ES frame ready - callback set? " << (esOutCallback != nullptr) << std::endl;
                             if (esOutCallback) {
                                 esOutCallback(lEsFrame);
                             }
                             mEsFrames[lTsHeader.mPid]->reset();
+                        } else {
+                            std::cout << "ES frame not ready, bytes left: " << (payloadLength - mEsFrames[lTsHeader.mPid]->mData->size()) << std::endl;
                         }
 
                         rIn.skip(188 - (rIn.pos() - lPos));
                         continue;
+                    } else {
+                        std::cout << "PES length: " << lPesHeader.mPesPacketLength << std::endl;
                     }
+                } else {
+                    std::cout << "No payload start indicator, yet" << std::endl;
                 }
 
                 if (mEsFrames[lTsHeader.mPid]->mExpectedPesPacketLength != 0 &&

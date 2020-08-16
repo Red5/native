@@ -275,6 +275,8 @@ public class Main {
             // create a configuration
             TSConfig config = new TSConfig();
             config.name = args.length == 0 ? "Red5 Mpeg" : args[0];
+            config.pmtPid = (short) 4096;
+            config.videoPid = (short) 256;
             TSHandler handler = TSHandler.build(config);
             log.info("Handler id: {}", handler.getId());
             TSReceiver receiver = handler.getReceiver();

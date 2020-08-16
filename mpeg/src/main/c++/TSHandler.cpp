@@ -240,19 +240,19 @@ JNIEXPORT jlong JNICALL Java_org_red5_mpeg_TSHandler_createHandler(JNIEnv *env, 
             mpegConfig->no_channels = channels;
         }
         // mpeg-ts options
-        uint8_t pmtPid = (uint8_t) env->GetByteField(config, env->GetFieldID(class_Config, "pmtPid", "B"));
+        uint16_t pmtPid = (uint16_t) env->GetShortField(config, env->GetFieldID(class_Config, "pmtPid", "S"));
         if (pmtPid > 0) {
             mpegConfig->pmtPid = pmtPid;
         }
-        uint8_t audioPid = (uint8_t) env->GetByteField(config, env->GetFieldID(class_Config, "audioPid", "B"));
+        uint16_t audioPid = (uint16_t) env->GetShortField(config, env->GetFieldID(class_Config, "audioPid", "S"));
         if (audioPid > 0) {
             mpegConfig->audioPid = audioPid;
         }
-        uint8_t videoPid = (uint8_t) env->GetByteField(config, env->GetFieldID(class_Config, "videoPid", "B"));
+        uint16_t videoPid = (uint16_t) env->GetShortField(config, env->GetFieldID(class_Config, "videoPid", "S"));
         if (videoPid > 0) {
             mpegConfig->videoPid = videoPid;
         }
-        uint8_t metaPid = (uint8_t) env->GetByteField(config, env->GetFieldID(class_Config, "metaPid", "B"));
+        uint16_t metaPid = (uint16_t) env->GetShortField(config, env->GetFieldID(class_Config, "metaPid", "S"));
         if (metaPid > 0) {
             mpegConfig->metaPid = metaPid;
         }
