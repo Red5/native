@@ -3,12 +3,17 @@ package org.red5.mpeg;
 import java.util.Map;
 import java.util.HashMap;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Packetized data received via native layer.
  * 
  * @author Paul Gregoire
  */
 public class TSPacket {
+
+    private static Logger log = LoggerFactory.getLogger(TSPacket.class);
 
     /**
      * Payload types we'll expect at time of writing. Any h.264 or h.265 will be expected in Annex-B format.
@@ -22,6 +27,7 @@ public class TSPacket {
     
         static {
             for (PayloadType e: values()) {
+                System.out.printf("Adding payload type to map: %s %d%n", e.name(), e.typeId);
                 BY_VALUE.put(e.typeId, e);
             }
         }
@@ -86,6 +92,7 @@ public class TSPacket {
      * @param typeId
      */
     private TSPacket(long timestamp, byte[] payload, int typeId) {
+        log.info("TSPacket - timestamp: {} typeId: {} payload size: {}", timestamp, typeId, payload);
         this.timestamp = timestamp;
         this.payload = (byte[]) payload;
         this.typeId = typeId;

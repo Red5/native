@@ -39,12 +39,25 @@ public class TSReceiver {
     }
 
     /**
+     * Receive handler for incoming short arrays.
+     * 
+     * @param data
+     */
+    public void receive(short[] data) {
+        if (isTrace) {
+            log.trace("receive {}", Arrays.toString(data));
+        }
+        // construct a packet and store it in the packet deque
+        packets.offer(TSPacket.build(System.currentTimeMillis(), data));
+    }
+
+    /**
      * Receive handler for incoming byte arrays with associated type identifier.
      * 
      * @param data
      * @param typeId
      */
-    public void receive(byte[] data, int typeId) {
+    public void receiveTyped(byte[] data, int typeId) {
         if (isTrace) {
             log.trace("receive type: {} {}", typeId, Main.byteArrayToHexString(data));
         }
@@ -59,25 +72,12 @@ public class TSReceiver {
      * @param data
      * @param typeId
      */
-    public void receive(long timestamp, byte[] data, int typeId) {
+    public void receiveTyped(long timestamp, byte[] data, int typeId) {
         if (isTrace) {
             log.trace("receive @{} type: {} {}", timestamp, typeId, Main.byteArrayToHexString(data));
         }
         // construct a packet and store it in the packet deque
         packets.offer(TSPacket.build(timestamp, data, typeId));
-    }
-
-    /**
-     * Receive handler for incoming short arrays.
-     * 
-     * @param data
-     */
-    public void receive(short[] data) {
-        if (isTrace) {
-            log.trace("receive {}", Arrays.toString(data));
-        }
-        // construct a packet and store it in the packet deque
-        packets.offer(TSPacket.build(System.currentTimeMillis(), data));
     }
 
     /**

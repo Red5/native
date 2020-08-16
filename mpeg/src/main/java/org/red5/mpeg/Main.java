@@ -329,7 +329,7 @@ public class Main {
                 while (tsDataBuffer.remaining() >= 188) {
                     // grab a chunk from the bb
                     tsDataBuffer.get(tsDataChunk);
-                    log.debug("Got chunk: {} {}", Integer.toHexString(tsDataChunk[0]), tsDataChunk[0]);
+                    //log.debug("Got chunk: {} {}", Integer.toHexString(tsDataChunk[0]), tsDataChunk[0]);
                     // demux the chunk
                     handler.demux(tsDataChunk);
                     // sleep for a tick
@@ -347,7 +347,7 @@ public class Main {
                     buffer.flip();
                     while (buffer.remaining() >= 188) {
                         buffer.get(tsDataChunk);
-                        log.debug("Got chunk: {} {}", Integer.toHexString(tsDataChunk[0]), tsDataChunk[0]);
+                        //log.debug("Got chunk: {} {}", Integer.toHexString(tsDataChunk[0]), tsDataChunk[0]);
                         // demux the chunk
                         handler.demux(tsDataChunk);
                         // sleep for a tick

@@ -165,8 +165,9 @@ void TSHandler::recvData(uint8_t *data, size_t data_len, uint64_t pts, uint16_t 
         }
         //if (receiverMethodId == nullptr) {
             //jclass receiverClass = env->GetObjectClass(receiver);
-            // public void receive(long timetamp, byte[] data, int typeId)
-            jmethodID receiverMethodId = env->GetMethodID(receiverClass, "receive", "(L[BI)V");
+            // public void receiveTyped(byte[] data, int typeId, long timetamp)
+            jmethodID receiverMethodId = env->GetMethodID(receiverClass, "receiveTyped", "(J[BI)V");
+            //jmethodID receiverMethodId = env->GetMethodID(receiverClass, "receiveTyped", "([BI)V");
         //}
         // determine the type id to hand back
         int typeId = 0; // TYPE_UNKNOWN
@@ -178,7 +179,9 @@ void TSHandler::recvData(uint8_t *data, size_t data_len, uint64_t pts, uint16_t 
         // create a new byte array to hold the buffer contents
         jbyteArray bytes = env->NewByteArray(data_len);
         env->SetByteArrayRegion(bytes, 0, data_len, (jbyte*) data);
-        env->CallVoidMethod(receiver, receiverMethodId, (jlong) pts, bytes, (jint) typeId);
+        std::cout << "Prepared for call pts: " << ((jlong) pts) << " typeId: " << ((jint) pid) << std::endl;
+        env->CallVoidMethod(receiver, receiverMethodId, pts, bytes, typeId);
+        //env->CallVoidMethod(receiver, receiverMethodId, bytes, typeId);
         if (env->ExceptionCheck()) {
             env->ExceptionDescribe();
         }
