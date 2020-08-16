@@ -58,3 +58,7 @@ java -Djava.library.path=target/nar/red5-mpeg-1.0.0-SNAPSHOT-amd64-Linux-gpp-jni
  * [Mpeg decoder - phoboslab](https://github.com/phoboslab/pl_mpeg)
  * [MPEG-TS - Unit-X](https://github.com/Unit-X/mpegts)
  * [JNI Guide](https://devarea.com/java-and-cc-jni-guide/)
+
+## Thanks
+
+Special thanks goes to [Anders Cedronius](https://github.com/andersc) and [Dominic Szablewski](https://github.com/phoboslab) for their sources which helped advance this project forward.
