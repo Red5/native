@@ -1,10 +1,22 @@
 # MPEG 1 Video and MP2 Audio
 
+## Features
+
+The following features are targeted for this project:
+
+* [x] MPEG-TS demuxing
+* [] MPEG-TS muxing
+* [] MPEG1 video encode
+* [] MPEG1 video decode
+* [] MP2 audio encode
+* [] MP2 audio decode
+* [] WebSocket push
+
 ## Prerequisites
 
 ### Linux
 
-SDL2 and OpenGL are needed for the player test app `pl_mpeg_player.c`; they are not needed to build the dist files.
+SDL2 and OpenGL are needed for the player test app `pl_mpeg_player.c`; they are not needed to build the dist files. The player code is disabled in the pom so to build it, you must use your compiler directly; I recommend VS Code.
 
 ```sh
 sudo apt install libglm-dev libglew-dev libsdl2-dev
@@ -39,3 +51,4 @@ java -Djava.library.path=target/nar/red5-mpeg-1.0.0-SNAPSHOT-amd64-Linux-gpp-jni
  * [JsMpeg - phoboslab](https://github.com/phoboslab/jsmpeg)
  * [Mpeg decoder - phoboslab](https://github.com/phoboslab/pl_mpeg)
  * [MPEG-TS - Unit-X](https://github.com/Unit-X/mpegts)
+ * [JNI Guide](https://devarea.com/java-and-cc-jni-guide/)

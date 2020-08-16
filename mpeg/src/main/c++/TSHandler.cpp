@@ -171,9 +171,11 @@ void TSHandler::recvData(uint8_t *data, size_t data_len, uint64_t pts, uint16_t 
         //}
         // determine the type id to hand back
         int typeId = 0; // TYPE_UNKNOWN
-        if (pid == 256) {
+        if (pid == config->videoPid) {
+            // assumes configured video pid is h264
             typeId = TYPE_H264;
-        } else if (pid == 257) {
+        } else if (pid == config->audioPid) {
+            // assumes configured audio pid is adts
             typeId = TYPE_ADTS;
         }
         // create a new byte array to hold the buffer contents
