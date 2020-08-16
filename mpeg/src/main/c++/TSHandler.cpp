@@ -147,6 +147,47 @@ void TSHandler::recvData(uint8_t *data, size_t data_len) {
     }
 }
 
+// hand / dispatch the data (bytes) back over to java via the receiver
+void TSHandler::recvData(uint8_t *data, size_t data_len, uint64_t pts, uint16_t pid) {
+    std::cout << "Received bytes size " << data_len << " pts: " << pts << " pid: " << pid << std::endl;
+    if (receiver != nullptr) {
+        JNIEnv *env;
+        int getEnvStat = jvm->GetEnv((void **) &env, JNI_VERSION_1_8);
+        if (getEnvStat == JNI_EDETACHED) {
+            //std::cout << "GetEnv: not attached" << std::endl;
+            if (jvm->AttachCurrentThread((void **) &env, NULL) != 0) {
+                std::cerr << "Failed to attach" << std::endl;
+            }
+        } else if (getEnvStat == JNI_OK) {
+            //std::cout << "GetEnv: attached" << std::endl;
+        } else if (getEnvStat == JNI_EVERSION) {
+            std::cerr << "GetEnv: version not supported" << std::endl;
+        }
+        //if (receiverMethodId == nullptr) {
+            //jclass receiverClass = env->GetObjectClass(receiver);
+            // public void receive(long timetamp, byte[] data, int typeId)
+            jmethodID receiverMethodId = env->GetMethodID(receiverClass, "receive", "(L[BI)V");
+        //}
+        // determine the type id to hand back
+        int typeId = 0; // TYPE_UNKNOWN
+        if (pid == 256) {
+            typeId = TYPE_H264;
+        } else if (pid == 257) {
+            typeId = TYPE_ADTS;
+        }
+        // create a new byte array to hold the buffer contents
+        jbyteArray bytes = env->NewByteArray(data_len);
+        env->SetByteArrayRegion(bytes, 0, data_len, (jbyte*) data);
+        env->CallVoidMethod(receiver, receiverMethodId, (jlong) pts, bytes, (jint) typeId);
+        if (env->ExceptionCheck()) {
+            env->ExceptionDescribe();
+        }
+        jvm->DetachCurrentThread();
+    } else {
+        std::cerr << "Java receiver is not available" << std::endl;
+    }
+}
+
 // hand / dispatch the data (shorts) back over to java via the receiver
 void TSHandler::recvData(uint16_t *data, size_t data_len) {
     std::cout << "Received shorts size " << data_len << std::endl;
@@ -194,12 +235,12 @@ void TSHandler::onDemuxed(EsFrame *pEs) {
         // prepend the sync byte to allow routing on the java side
         //pEs->mData->prepend((const uint8_t *) TS_SYNC_BYTE, 1); // something about prepending breaks this
         // pass off to the recv to get it back over to java
-        recvData(pEs->mData->data(), pEs->mData->size());
+        recvData(pEs->mData->data(), pEs->mData->size(), pEs->mPts, pEs->mPid);
     } else {
         // do we want to handle broken frames? these may not be broken, could be 0 pes.length h264 video
         std::cerr << "Broken frame detected" << std::endl;
         // pass off to the recv to get it back over to java
-        recvData(pEs->mData->data(), pEs->mData->size());
+        recvData(pEs->mData->data(), pEs->mData->size(), pEs->mPts, pEs->mPid);
     }
 }
 

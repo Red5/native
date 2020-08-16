@@ -39,6 +39,10 @@ extern "C" {
 // PMT PID
 #define PMT_PID 100
 
+// fourCC
+const uint32_t TYPE_ADTS = (('A'<<24) | ('D'<<16) | ('T'<<8) | 'S');
+const uint32_t TYPE_H264 = (('H'<<24) | ('2'<<16) | ('6'<<8) | '4');
+
 // all the fields needed to configure the handler
 typedef struct config_t {
     // identifier for the instance (ex. stream name)
@@ -109,6 +113,8 @@ class TSHandler {
         void decodeAudio(std::vector<uint16_t> abuf);
 
         void recvData(uint8_t *data, size_t data_len);
+
+        void recvData(uint8_t *data, size_t data_len, uint64_t pts, uint16_t pid);
 
         void recvData(uint16_t *data, size_t data_len);
 
