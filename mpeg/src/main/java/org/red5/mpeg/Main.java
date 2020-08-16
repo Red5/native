@@ -161,8 +161,6 @@ public class Main {
             } else {
                 log.warn("MPEG path was null, attempting loadLibrary instead");
                 try {
-                    System.loadLibrary("red5-mpeg-1.0.0-SNAPSHOT");
-                    log.info("MPEG library loaded");
                     System.loadLibrary(libraryName);
                     log.info("Red5 MPEG library loaded");
                 } catch (Exception e) {
