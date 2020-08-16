@@ -134,7 +134,7 @@ public class TSHandler {
      * @return TSHandler if no errors occur, otherwise return null
      */
     public static TSHandler build(TSConfig config) {
-        TSReceiver receiver = new TSReceiver();
+        final TSReceiver receiver = new TSReceiver();
         long handlerId = createHandler(config, receiver);
         if (handlerId > 0) {
             TSHandler handler = new TSHandler(handlerId);

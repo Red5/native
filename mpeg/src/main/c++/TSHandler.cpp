@@ -5,9 +5,87 @@
 /* extern C used to prevent method mangling or other odd things from happening */
 extern "C" {
 
+    void onVideo(plm_t *mpeg, plm_frame_t *frame, void *handler) {
+        TSHandler *self = (TSHandler *) handler;
+        // Hand the decoded data over to OpenGL. For the RGB texture mode, the
+        // YCrCb->RGB conversion is done on the CPU.
+        /*
+        // decoded data passed back via receiver
+        //self->recvData(decoded, decodedLength);
+
+        if (self->texture_mode == APP_TEXTURE_MODE_YCRCB) {
+            app_update_texture(self, GL_TEXTURE0, self->texture_y, &frame->y);
+            app_update_texture(self, GL_TEXTURE1, self->texture_cb, &frame->cb);
+            app_update_texture(self, GL_TEXTURE2, self->texture_cr, &frame->cr);
+        }
+        else {
+            plm_frame_to_rgb(frame, self->rgb_data, frame->width * 3);
+        
+            glBindTexture(GL_TEXTURE_2D, self->texture_rgb);
+            glTexImage2D(
+                GL_TEXTURE_2D, 0, GL_RGB, frame->width, frame->height, 0,
+                GL_RGB, GL_UNSIGNED_BYTE, self->rgb_data
+            );
+        }
+        */
+    }
+
+    void onAudio(plm_t *mpeg, plm_samples_t *samples, void *handler) {
+        TSHandler *self = (TSHandler *) handler;
+        /*
+        // decoded data passed back via receiver
+        //self->recvData(decoded, decodedLength);
+
+        // Hand the decoded samples over to SDL
+        int size = sizeof(float) * samples->count * 2;
+        SDL_QueueAudio(self->audio_device, samples->interleaved, size);
+        */
+    }
+
     // ctor
     TSHandler::TSHandler() {
         start_time = std::chrono::steady_clock::now();
+    }
+
+    bool TSHandler::init() {
+        std::cout << "init: " << this << std::endl;
+        // Create the map defining what datatype to map to what PID
+        int pcrPid = 0;
+        std::map<uint8_t, int> streamPidMap;
+        if (config->videoPid > 0) {
+            streamPidMap[TYPE_VIDEO] = config->videoPid;
+            pcrPid = streamPidMap[TYPE_VIDEO];
+        }
+        if (config->audioPid > 0) {
+            streamPidMap[TYPE_AUDIO] = config->audioPid;
+            // if no audio-only use AUDIO_PID
+            if (pcrPid == 0) {
+                pcrPid = streamPidMap[TYPE_AUDIO];
+            }
+        }
+        // Create demuxer / muxer and set onto the handler
+        demuxer = std::make_shared<MpegTsDemuxer>();
+        muxer = std::make_shared<MpegTsMuxer>(streamPidMap, PMT_PID, pcrPid);
+        std::cout << "demuxer: " << demuxer << " muxer: " << muxer << std::endl;
+        // set the demuxer callback
+        demuxer->esOutCallback = std::bind(&onDemuxed, this, std::placeholders::_1);
+        // set the muxer callback where TS packets are fed to
+        muxer->tsOutCallback = std::bind(&onMuxed, this, std::placeholders::_1);
+        std::cout << "callbacks set" << std::endl;
+        /*
+        // figure out the right size for both audio and video
+        size_t length = config->width * config->height * 3;
+        uint8_t bytes[length];
+        //
+        plm_buffer_t *buffer = plm_buffer_create_with_memory(bytes, length, true);
+        plm = plm_create_with_buffer(buffer, true);
+        if (plm) {
+            plm_set_video_decode_callback(plm, onVideo, this);
+            plm_set_audio_decode_callback(plm, onAudio, this);
+            return 0;
+        }
+        */
+        return JNI_TRUE;
     }
 
     void TSHandler::decodeVideo(std::vector<uint8_t> vbuf) {
@@ -107,7 +185,8 @@ extern "C" {
 
     void TSHandler::onDemuxed(EsFrame *pEs) {
         std::cout << "Demuxed data " << unsigned(pEs->mStreamType) << " size: " << pEs->mData->size() << std::endl;
-        if (demuxer.mPmtIsValid) {
+        auto demux = std::any_cast<std::shared_ptr<MpegTsDemuxer> &>(demuxer);
+        if (demux.get()->mPmtIsValid) {
             // check the PMT header for our expected a/v types
             // demuxer.mPmtHeader
         }
@@ -131,6 +210,7 @@ extern "C" {
      * Create an instance and return a usable unique identifier.
      */
     JNIEXPORT jlong JNICALL Java_org_red5_mpeg_TSHandler_createHandler(JNIEnv *env, jclass clazz, jobject config, jobject receiver) {
+        std::cout << "Create handler config: " << config << " receiver: " << receiver << std::endl;
         jlong id = maininator.create_handler();
         TSHandler *handler = mpeg_ctx.getHandler(id);
         if (handler != 0) {
@@ -185,7 +265,9 @@ extern "C" {
             jclass receiverClass = env->GetObjectClass(receiver);
             handler->receiverClass = reinterpret_cast<jclass>(env->NewGlobalRef(receiverClass));
             // initialize the handler
-            maininator.init(handler);
+            if (!maininator.init(handler)) {
+                std::cerr << "Initialize failed" << std::endl;
+            }
         } else {
             std::cerr << "Failed to locate handler" << std::endl;
         }
@@ -251,7 +333,8 @@ extern "C" {
             env->GetByteArrayRegion(data, 0, buf_len, buf);
             SimpleBuffer in;
             in.append((uint8_t*) &buf[0], buf_len);
-            handler->demuxer.decode(in);
+            auto demux = std::any_cast<std::shared_ptr<MpegTsDemuxer> &>(handler->demuxer).get();
+            demux->decode(in);
         }
     }
 
@@ -285,7 +368,8 @@ extern "C" {
             esFrame.mExpectedPesPacketLength = 0;
             esFrame.mCompleted = true;
             // Multiplex your data
-            handler->muxer->encode(esFrame);
+            auto mux = std::any_cast<std::shared_ptr<MpegTsMuxer> &>(handler->muxer).get();
+            mux->encode(esFrame);
         }
     }
 

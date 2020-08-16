@@ -1,47 +1,10 @@
 #pragma once
 
-// NDI "main" wrapper
+// TS-MPEG/MPEG1/MP2 "main" wrapper
 #include "R5MpegMain.h"
 
 /* extern C used to prevent method mangling or other odd things from happening */
 extern "C" {
-
-    void onVideo(plm_t *mpeg, plm_frame_t *frame, void *handler) {
-        TSHandler *self = (TSHandler *) handler;
-        // Hand the decoded data over to OpenGL. For the RGB texture mode, the
-        // YCrCb->RGB conversion is done on the CPU.
-        /*
-        // decoded data passed back via receiver
-        //self->recvData(decoded, decodedLength);
-
-        if (self->texture_mode == APP_TEXTURE_MODE_YCRCB) {
-            app_update_texture(self, GL_TEXTURE0, self->texture_y, &frame->y);
-            app_update_texture(self, GL_TEXTURE1, self->texture_cb, &frame->cb);
-            app_update_texture(self, GL_TEXTURE2, self->texture_cr, &frame->cr);
-        }
-        else {
-            plm_frame_to_rgb(frame, self->rgb_data, frame->width * 3);
-        
-            glBindTexture(GL_TEXTURE_2D, self->texture_rgb);
-            glTexImage2D(
-                GL_TEXTURE_2D, 0, GL_RGB, frame->width, frame->height, 0,
-                GL_RGB, GL_UNSIGNED_BYTE, self->rgb_data
-            );
-        }
-        */
-    }
-
-    void onAudio(plm_t *mpeg, plm_samples_t *samples, void *handler) {
-        TSHandler *self = (TSHandler *) handler;
-        /*
-        // decoded data passed back via receiver
-        //self->recvData(decoded, decodedLength);
-
-        // Hand the decoded samples over to SDL
-        int size = sizeof(float) * samples->count * 2;
-        SDL_QueueAudio(self->audio_device, samples->interleaved, size);
-        */
-    }
 
     /**
      * Create a handler instance.
@@ -51,7 +14,7 @@ extern "C" {
         TSHandler *handler = mpeg_ctx.newHandler();
         if (handler != 0) {
             // get the identifier for return
-            std::cout << "NDI handler created: " << handler->selfId << std::endl;       
+            std::cout << "TS handler created: " << handler->selfId << std::endl;       
             return handler->selfId;
         } else {
             std::cerr << "Failed to create handler" << std::endl;
@@ -62,43 +25,11 @@ extern "C" {
     /**
      * Initialize the handler.
      */
-    void R5MpegMain::init(void *handler_arg) {
+    bool R5MpegMain::init(void *handler_arg) {
         // cast the arg back to handler
         TSHandler *handler = (TSHandler *) handler_arg;
         std::cout << "Init: " << handler->selfId << std::endl;
-        // set the demuxer callback
-        handler->demuxer.esOutCallback = std::bind(&TSHandler::onDemuxed, handler, std::placeholders::_1);
-        // Create the map defining what datatype to map to what PID
-        int pcrPid = 0;
-        std::map<uint8_t, int> streamPidMap;
-        if (handler->config->videoPid > 0) {
-            streamPidMap[TYPE_VIDEO] = handler->config->videoPid;
-            pcrPid = streamPidMap[TYPE_VIDEO];
-        }
-        if (handler->config->audioPid > 0) {
-            streamPidMap[TYPE_AUDIO] = handler->config->audioPid;
-            if (pcrPid == 0) {
-                pcrPid = streamPidMap[TYPE_AUDIO];
-            }
-        }
-        // Create the multiplexer (PID Map, PMT PID, PCR PID)
-        MpegTsMuxer mux(streamPidMap, PMT_PID, pcrPid); // if no audio-only use AUDIO_PID
-        // Provide the callback where TS packets are fed to
-        mux.tsOutCallback = std::bind(&TSHandler::onMuxed, handler, std::placeholders::_1);
-        // set the muxer onto the handler
-        handler->muxer = &mux;
-        // figure out the right size for both audio and video
-        size_t length = handler->config->width * handler->config->height * 3;
-        uint8_t bytes[length];
-        //
-        plm_buffer_t *buffer = plm_buffer_create_with_memory(bytes, length, true);
-        handler->plm = plm_create_with_buffer(buffer, true);
-	    if (handler->plm) {
-            plm_set_video_decode_callback(handler->plm, onVideo, handler);
-            plm_set_audio_decode_callback(handler->plm, onAudio, handler);
-	    } else {
-            // init failed
-        }
+        return handler->init();
     }
 
     void R5MpegMain::destroy(long id) {     

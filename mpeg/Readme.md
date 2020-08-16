@@ -16,6 +16,15 @@ sudo apt install libglm-dev libglew-dev libsdl2-dev
 
 [SDL2](https://www.libsdl.org/download-2.0.php)
 
+## Test
+
+To perform a quick test, after a successful build, execute the following:
+
+```sh
+java -Djava.library.path=target/nar/red5-mpeg-1.0.0-SNAPSHOT-amd64-Linux-gpp-jni/lib/amd64-Linux-gpp -cp target/lib/slf4j-api.jar:target/lib/logback-core.jar:target/lib/logback-classic.jar:target/red5-mpeg-1.0.0-SNAPSHOT.jar org.red5.mpeg.Main
+```
+
+_Ensure that the slf4j and logback jars are in the `lib` directory and update versions as needed_
 
 ## References
 

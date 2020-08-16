@@ -1,6 +1,7 @@
 # Executables
-ndi/src/main/c++/pl_mpeg_player
+src/main/c++/pl_mpeg_player
 
 target/
+lib/
 
 

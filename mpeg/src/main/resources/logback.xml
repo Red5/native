@@ -7,7 +7,7 @@
     </encoder>
   </appender>
   <appender class="ch.qos.logback.core.FileAppender" name="FILE">
-    <file>mpeg.log</file>
+    <file>target/mpeg.log</file>
     <append>false</append>
     <encoder>
       <pattern>%d{ISO8601} [%thread] %-5level %logger{35} - %msg%n</pattern>

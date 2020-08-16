@@ -12,6 +12,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cmath>
+#include <any>
 #include <algorithm>
 #include <atomic>
 #include <chrono>
@@ -21,6 +22,8 @@
 // Unit-X mpeg-ts mux/demux
 #include "mpegts_demuxer.h"
 #include "mpegts_muxer.h"
+
+extern "C" {
 
 #define TS_SYNC_BYTE 0x47
 
@@ -77,9 +80,9 @@ class TSHandler {
         // last decode time
         std::chrono::_V2::steady_clock::time_point last_time;
         // MPEG-TS demuxer
-        MpegTsDemuxer demuxer;
+        std::shared_ptr<MpegTsDemuxer> demuxer;
         // MPEG-TS muxer
-        MpegTsMuxer *muxer;
+        std::shared_ptr<MpegTsMuxer> muxer;
         // debug flag
         bool debug = false;
 
@@ -98,6 +101,8 @@ class TSHandler {
             } catch(...) {};
             std::cout << "freed handler: " << selfId << std::endl;
         };
+
+        bool init();
 
         void decodeVideo(std::vector<uint8_t> vbuf);
 
@@ -157,11 +162,13 @@ class R5MpegMain {
         // create an handler instance
         long create_handler();
         // initialize
-        void init(void *handler_arg);
+        bool init(void *handler_arg);
         // destroy the handler instance
         void destroy(long id);
 };
 
 static R5MpegMain maininator;
+
+}
 
 #endif //CPPWRAPPER_R5MPEG_H
