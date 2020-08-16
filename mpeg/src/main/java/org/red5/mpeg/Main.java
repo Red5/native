@@ -295,6 +295,7 @@ public class Main {
             RandomAccessFile tsOutFile = new RandomAccessFile("target/out.ts", "rw");
             // get the receiver thread
             Thread recv = new Thread(() -> {
+                long apts = 0L, vpts = 0L;
                 do {
                     TSPacket pkt = receiver.getNext();
                     if (pkt != null) {
@@ -308,9 +309,23 @@ public class Main {
                             }
                         } else {
                             // if the payload isn't muxed, mux it
-                            byte type = pkt.isAudio() ? TYPE_AUDIO : TYPE_VIDEO;
-                            short pid = pkt.isAudio() ? config.audioPid : config.videoPid;
-                            handler.mux(pkt.getPayload(), System.currentTimeMillis(), type, pid);
+                            byte type = 0;
+                            short pid = 0;
+                            if (pkt.isAudio()) {
+                                type = TYPE_AUDIO;
+                                pid = config.audioPid;
+                                // calculate pts
+                                apts += 48000 / 60;
+                                // mux audio
+                                handler.mux(pkt.getPayload(), apts, type, pid);
+                            } else if (pkt.isVideo()) {
+                                type = TYPE_VIDEO;
+                                pid = config.videoPid;
+                                // calculate pts
+                                vpts += 90000 / 60;
+                                // mux video
+                                handler.mux(pkt.getPayload(), vpts, type, pid);
+                            }
                         }
                     } else {
                         try {
