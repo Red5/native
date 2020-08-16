@@ -21,19 +21,20 @@ public class TSPacket {
     public static enum PayloadType {
         TYPE_UNKNOWN(0), TYPE_AUDIO(8), TYPE_VIDEO(9), TYPE_META(12), TYPE_I420('I', '4', '2', '0'), TYPE_ADTS('A', 'D', 'T', 'S'), TYPE_H264('H', '2', '6', '4'), TYPE_HEVC('H', 'E', 'V', 'C');
 
-        final int typeId;
+        final Integer typeId;
 
         static final Map<Integer, PayloadType> BY_VALUE = new HashMap<>();
     
         static {
             for (PayloadType e: values()) {
-                System.out.printf("Adding payload type to map: %s %d%n", e.name(), e.typeId);
+                log.debug("Adding payload type to map: {} {}", e.name(), e.typeId);
                 BY_VALUE.put(e.typeId, e);
             }
         }
 
         PayloadType(char... typeArray) {
-            this.typeId = typeArray[0] | (typeArray[1] << 8) | (typeArray[2] << 16) | (typeArray[3] << 24);
+            // big-endian to match C/C++ side
+            this.typeId = ((typeArray[0] << 24) | (typeArray[1] << 16) | (typeArray[2] << 8) | typeArray[3]);
         }
 
         PayloadType(int typeId) {
