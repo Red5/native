@@ -10,7 +10,7 @@ MpegTsDemuxer::~MpegTsDemuxer() {
 }
 
 uint8_t MpegTsDemuxer::decode(SimpleBuffer &rIn) {
-    std::cout << "decode " << rIn.size() << std::endl;
+    //std::cout << "decode " << rIn.size() << std::endl;
     if (mRestData.size()) {
         rIn.prepend(mRestData.data(),mRestData.size());
         mRestData.clear();
@@ -105,13 +105,13 @@ uint8_t MpegTsDemuxer::decode(SimpleBuffer &rIn) {
                         mEsFrames[lTsHeader.mPid]->reset();
                     } else if (mEsFrames[lTsHeader.mPid]->mData->size() && !mEsFrames[lTsHeader.mPid]->mCompleted) {
                         //Its a broken frame deliver that as broken
+                        std::cout << "ES broken frame - callback set? " << (esOutCallback != nullptr) << std::endl;
                         if (esOutCallback) {
                             EsFrame *lEsFrame = mEsFrames[lTsHeader.mPid].get();
                             lEsFrame -> mBroken = true;
                             lEsFrame -> mPid = lTsHeader.mPid;
                             esOutCallback(lEsFrame);
                         }
-
                         mEsFrames[lTsHeader.mPid]->reset();
                     }
 
@@ -156,10 +156,11 @@ uint8_t MpegTsDemuxer::decode(SimpleBuffer &rIn) {
                         rIn.skip(188 - (rIn.pos() - lPos));
                         continue;
                     } else {
+                        // XXX remember that PES length is always 0 for h264 video
                         std::cout << "PES length: " << lPesHeader.mPesPacketLength << std::endl;
                     }
                 } else {
-                    std::cout << "No payload start indicator, yet" << std::endl;
+                    //std::cout << "No payload start indicator, yet" << std::endl;
                 }
 
                 if (mEsFrames[lTsHeader.mPid]->mExpectedPesPacketLength != 0 &&
@@ -178,10 +179,13 @@ uint8_t MpegTsDemuxer::decode(SimpleBuffer &rIn) {
                     mEsFrames[lTsHeader.mPid]->mCompleted = true;
                     mEsFrames[lTsHeader.mPid]->mPid = lTsHeader.mPid;
                     EsFrame *lEsFrame = mEsFrames[lTsHeader.mPid].get();
+                    std::cout << "ES frame ready - callback set? " << (esOutCallback != nullptr) << std::endl;
                     if (esOutCallback) {
                         esOutCallback(lEsFrame);
                     }
                     mEsFrames[lTsHeader.mPid]->reset();
+                } else {
+                    std::cout << "ES frame not equal - data size: " << mEsFrames[lTsHeader.mPid]->mData->size() << " expected: " << mEsFrames[lTsHeader.mPid]->mExpectedPayloadLength << std::endl;                    
                 }
 
             }

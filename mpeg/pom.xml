@@ -17,6 +17,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
+        <debug>true</debug>
 		<red5.version>1.1.1</red5.version>
         <bc.version>1.62</bc.version>
         <mina.version>2.0.21</mina.version>
@@ -148,7 +149,7 @@
                             </libraries>
                             <cpp>
                                 <!-- Compile with debug information. Default is false. -->
-                                <debug>false</debug>
+                                <debug>${debug}</debug>
                                 <!-- Sets optimization. Possible choices are: "none", "size", "minimal", "speed", "full", "aggressive", "extreme", "unsafe". Default is none. -->
                                 <optimize>speed</optimize>
                                 <exceptions>true</exceptions>
@@ -160,9 +161,9 @@
                                     <!-- Inhibit all warning messages (-w) -->
                                     <option>-w</option>
                                     <!-- Includes the debug symbols, match up with debug tag above -->
-                                    <!--
+                                    <!-- -->
                                     <option>-g</option>
-                                    -->
+                                    <!-- -->
                                     <option>-Wl,-export-dynamic</option>
                                     <option>-Wl,--no-undefined</option>
                                     <!-- Downgrade some diagnostics about nonconformant code from errors to warnings -->

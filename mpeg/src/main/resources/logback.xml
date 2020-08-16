@@ -17,7 +17,5 @@
     <appender-ref ref="CONSOLE"/>
     <appender-ref ref="FILE"/>
   </root>
-  <!--
-  <logger name="org.red5" level="TRACE"/>
-  -->
+  <logger name="org.red5.mpeg.TSReceiver" level="TRACE"/>
 </configuration>

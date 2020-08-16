@@ -184,17 +184,23 @@ void TSHandler::recvData(uint16_t *data, size_t data_len) {
 }
 
 void TSHandler::onDemuxed(EsFrame *pEs) {
-    std::cout << "Demuxed data " << unsigned(pEs->mStreamType) << " size: " << pEs->mData->size() << std::endl;
+    std::cout << "Demuxed data " << unsigned(pEs->mStreamType) << " size: " << pEs->mData->size() << " broken? " << pEs->mBroken << std::endl;
     //auto demux = std::any_cast<std::shared_ptr<MpegTsDemuxer> &>(demuxer);
     if (demuxer->mPmtIsValid) {
         // check the PMT header for our expected a/v types
         // demuxer.mPmtHeader
     }
-    
-    // prepend the sync byte to allow routing on the java side
-    pEs->mData->prepend((const uint8_t *) TS_SYNC_BYTE, 1);
-    // pass off to the recv to get it back over to java
-    recvData(pEs->mData->data(), pEs->mData->size());
+    if (pEs->mBroken == 0) {
+        // prepend the sync byte to allow routing on the java side
+        //pEs->mData->prepend((const uint8_t *) TS_SYNC_BYTE, 1); // something about prepending breaks this
+        // pass off to the recv to get it back over to java
+        recvData(pEs->mData->data(), pEs->mData->size());
+    } else {
+        // do we want to handle broken frames? these may not be broken, could be 0 pes.length h264 video
+        std::cerr << "Broken frame detected" << std::endl;
+        // pass off to the recv to get it back over to java
+        recvData(pEs->mData->data(), pEs->mData->size());
+    }
 }
 
 //A callback where all the TS-packets are sent from the multiplexer

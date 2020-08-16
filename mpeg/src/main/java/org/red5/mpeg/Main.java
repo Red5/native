@@ -293,7 +293,7 @@ public class Main {
                 do {
                     TSPacket pkt = receiver.getNext();
                     if (pkt != null) {
-                        log.info("Received: {}", pkt);
+                        log.info("Received: {}", pkt.getPayload().length);
                     } else {
                         try {
                             Thread.sleep(10L);
@@ -350,7 +350,7 @@ public class Main {
                         // demux the chunk
                         handler.demux(tsDataChunk);
                         // sleep for a tick
-                        Thread.sleep(100L);
+                        Thread.sleep(10L);
                     }
                     buffer.clear(); // do something with the data and clear/compact it.
                 }
@@ -374,4 +374,17 @@ public class Main {
         }
         return data;
     }
+
+    private static final char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
+
+    public static String byteArrayToHexString(byte[] bytes) {
+        char[] hexChars = new char[bytes.length * 2];
+        for (int j = 0; j < bytes.length; j++) {
+            int v = bytes[j] & 0xFF;
+            hexChars[j * 2] = HEX_ARRAY[v >>> 4];
+            hexChars[j * 2 + 1] = HEX_ARRAY[v & 0x0F];
+        }
+        return new String(hexChars);
+    }
+
 }

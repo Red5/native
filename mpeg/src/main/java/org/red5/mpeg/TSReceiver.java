@@ -27,7 +27,7 @@ public class TSReceiver {
     public void receive(byte[] data) {
         if (isTrace) {
             //log.trace("receive {}", Arrays.toString(data));
-            log.trace("receive {}", new String(data));
+            log.trace("receive {}", Main.byteArrayToHexString(data));
         }
         // construct a packet and store it in the packet deque; a client id of 0 is defaulted to for client instances
         packets.offer(TSPacket.build(System.currentTimeMillis(), data));
