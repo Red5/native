@@ -58,6 +58,8 @@ java -Djava.library.path=target/nar/red5-mpeg-1.0.0-SNAPSHOT-amd64-Linux-gpp-jni
  * [Mpeg decoder - phoboslab](https://github.com/phoboslab/pl_mpeg)
  * [MPEG-TS - Unit-X](https://github.com/Unit-X/mpegts)
  * [JNI Guide](https://devarea.com/java-and-cc-jni-guide/)
+ * [Wikipedia MPEG-1](https://en.wikipedia.org/wiki/MPEG-1)
+ * [Wikipedia MPEG-1 Audio Layer II](https://en.wikipedia.org/wiki/MPEG-1_Audio_Layer_II)
 
 ## Thanks
 
