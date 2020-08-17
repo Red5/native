@@ -5,6 +5,7 @@
 /* extern C used to prevent method mangling or other odd things from happening */
 extern "C" {
 
+// callback for decoded mpeg1 video
 void onVideo(plm_t *mpeg, plm_frame_t *frame, void *handler) {
     TSHandler *self = (TSHandler *) handler;
     // Hand the decoded data over to OpenGL. For the RGB texture mode, the
@@ -30,6 +31,7 @@ void onVideo(plm_t *mpeg, plm_frame_t *frame, void *handler) {
     */
 }
 
+// callback for mp2 audio
 void onAudio(plm_t *mpeg, plm_samples_t *samples, void *handler) {
     TSHandler *self = (TSHandler *) handler;
     /*
@@ -165,9 +167,8 @@ void TSHandler::recvData(uint8_t *data, size_t data_len, uint64_t pts, uint16_t 
         }
         //if (receiverMethodId == nullptr) {
             //jclass receiverClass = env->GetObjectClass(receiver);
-            // public void receiveTyped(byte[] data, int typeId, long timetamp)
+            // public void receiveTyped(long timetamp, byte[] data, int typeId)
             jmethodID receiverMethodId = env->GetMethodID(receiverClass, "receiveTyped", "(J[BI)V");
-            //jmethodID receiverMethodId = env->GetMethodID(receiverClass, "receiveTyped", "([BI)V");
         //}
         // determine the type id to hand back
         int typeId = 0; // TYPE_UNKNOWN
@@ -183,7 +184,6 @@ void TSHandler::recvData(uint8_t *data, size_t data_len, uint64_t pts, uint16_t 
         env->SetByteArrayRegion(bytes, 0, data_len, (jbyte*) data);
         std::cout << "Prepared for call pts: " << ((jlong) pts) << " typeId: " << ((jint) pid) << std::endl;
         env->CallVoidMethod(receiver, receiverMethodId, pts, bytes, typeId);
-        //env->CallVoidMethod(receiver, receiverMethodId, bytes, typeId);
         if (env->ExceptionCheck()) {
             env->ExceptionDescribe();
         }
@@ -232,14 +232,11 @@ void TSHandler::recvData(uint16_t *data, size_t data_len) {
 // callback for the MPEG-TS demuxer
 void TSHandler::onDemuxed(EsFrame *pEs) {
     std::cout << "Demuxed data " << unsigned(pEs->mStreamType) << " size: " << pEs->mData->size() << " broken? " << pEs->mBroken << std::endl;
-    //auto demux = std::any_cast<std::shared_ptr<MpegTsDemuxer> &>(demuxer);
     if (demuxer->mPmtIsValid) {
         // check the PMT header for our expected a/v types
         // demuxer.mPmtHeader
     }
     if (pEs->mBroken == 0) {
-        // prepend the sync byte to allow routing on the java side
-        //pEs->mData->prepend((const uint8_t *) TS_SYNC_BYTE, 1); // something about prepending breaks this
         // pass off to the recv to get it back over to java
         recvData(pEs->mData->data(), pEs->mData->size(), pEs->mPts, pEs->mPid);
     } else {
