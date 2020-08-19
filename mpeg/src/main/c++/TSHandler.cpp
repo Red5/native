@@ -46,7 +46,6 @@ void onAudio(plm_t *mpeg, plm_samples_t *samples, void *handler) {
 
 // ctor
 TSHandler::TSHandler() {
-    start_time = std::chrono::steady_clock::now();
 }
 
 bool TSHandler::init() {
@@ -70,9 +69,9 @@ bool TSHandler::init() {
     muxer = std::make_shared<MpegTsMuxer>(streamPidMap, PMT_PID, pcrPid);
     std::cout << "demuxer: " << demuxer << " muxer: " << muxer << std::endl;
     // set the demuxer callback
-    demuxer->esOutCallback = std::bind(&onDemuxed, this, std::placeholders::_1);
+    demuxer->esOutCallback = std::bind(&TSHandler::onDemuxed, this, std::placeholders::_1);
     // set the muxer callback where TS packets are fed to
-    muxer->tsOutCallback = std::bind(&onMuxed, this, std::placeholders::_1);
+    muxer->tsOutCallback = std::bind(&TSHandler::onMuxed, this, std::placeholders::_1);
     std::cout << "callbacks set" << std::endl;
     /*
     // figure out the right size for both audio and video
