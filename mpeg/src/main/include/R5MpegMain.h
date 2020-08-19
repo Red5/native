@@ -79,10 +79,6 @@ class TSHandler {
         // receiver
         jobject receiver = nullptr;
         jclass receiverClass = nullptr;
-        // start time
-        std::chrono::_V2::steady_clock::time_point start_time;
-        // last decode time
-        std::chrono::_V2::steady_clock::time_point last_time;
         // MPEG-TS demuxer
         std::shared_ptr<MpegTsDemuxer> demuxer;
         // MPEG-TS muxer

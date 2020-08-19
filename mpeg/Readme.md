@@ -34,6 +34,18 @@ sudo apt install libglm-dev libglew-dev libsdl2-dev
 
 [SDL2](https://www.libsdl.org/download-2.0.php)
 
+Build problem on windows:
+
+```sh
+[INFO] OUTPUT>simple_buffer.cpp
+[ERROR] OUTPUT>C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.26.28801\include\any(429): error C2338: any_cast<T>(any&&) requires T to be constructible from remove_cv_t<remove_reference_t<T>>
+[INFO] OUTPUT>c++/TSHandler.cpp(384): note: see reference to function template instantiation '_Ty &std::any_cast<std::shared_ptr<MpegTsDemuxer>&>(std::any &&)' being compiled
+[INFO] OUTPUT>        with
+[INFO] OUTPUT>        [
+[INFO] OUTPUT>            _Ty=std::shared_ptr<MpegTsDemuxer> &
+[INFO] OUTPUT>        ]
+```
+
 ## Test
 
 To perform a quick test, after a successful build, execute the following:

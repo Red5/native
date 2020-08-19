@@ -18,6 +18,8 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <debug>true</debug>
+        <!-- windows msvc tool path -->
+        <msvc.toolpath>C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Tools/MSVC/14.26.28801/bin/Hostx64/x64</msvc.toolpath>
 		<red5.version>1.1.1</red5.version>
         <bc.version>1.62</bc.version>
         <mina.version>2.0.21</mina.version>
