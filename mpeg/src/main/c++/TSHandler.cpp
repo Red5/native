@@ -73,7 +73,7 @@ bool TSHandler::init() {
     demuxer->esOutCallback = std::bind(&onDemuxed, this, std::placeholders::_1);
     // set the muxer callback where TS packets are fed to
     muxer->tsOutCallback = std::bind(&onMuxed, this, std::placeholders::_1);
-    std::cout << "callbacks set" << std::endl;
+    //std::cout << "callbacks set" << std::endl;
     /*
     // figure out the right size for both audio and video
     size_t length = config->width * config->height * 3;

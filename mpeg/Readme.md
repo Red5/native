@@ -47,7 +47,7 @@ _Ensure that the slf4j and logback jars are in the `lib` directory and update ve
 Test with `ts` file:
 
 ```sh
-java -Djava.library.path=target/nar/red5-mpeg-1.0.0-SNAPSHOT-amd64-Linux-gpp-jni/lib/amd64-Linux-gpp/jni -cp target/lib/slf4j-api-1.7.25.jar:target/lib/logback-core-1.2.3.jar:target/lib/logback-classic-1.2.3.jar:target/red5-mpeg-1.0.0-SNAPSHOT.jar org.red5.mpeg.Main TestRun src/main/resources/bars.ts
+java -Djava.library.path=target/nar/red5-mpeg-1.0.0-SNAPSHOT-amd64-Linux-gpp-jni/lib/amd64-Linux-gpp/jni -cp target/lib/slf4j-api-1.7.30.jar:target/lib/logback-core-1.2.3.jar:target/lib/logback-classic-1.2.3.jar:target/red5-mpeg-1.0.0-SNAPSHOT.jar org.red5.mpeg.Main TestRun src/main/resources/bars.ts
 ```
 
 ## References
