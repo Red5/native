@@ -37,6 +37,12 @@ public:
     // PMT
     PMTHeader mPmtHeader;
     bool mPmtIsValid = false;
+	
+	///Delete copy and move constructors and assign operators
+	MpegTsDemuxer(MpegTsDemuxer const &) = delete;              // Copy construct
+	MpegTsDemuxer(MpegTsDemuxer &&) = delete;                   // Move construct
+	MpegTsDemuxer &operator=(MpegTsDemuxer const &) = delete;   // Copy assign
+	MpegTsDemuxer &operator=(MpegTsDemuxer &&) = delete;        // Move assign
 
 private:
     // pid, Elementary data frame

@@ -381,8 +381,8 @@ JNIEXPORT void JNICALL Java_org_red5_mpeg_TSHandler_demux(JNIEnv *env, jclass cl
         //std::cout << "Sync byte? " << unsigned(buf[0]) << std::endl;
         SimpleBuffer in;
         in.append((uint8_t*) &buf[0], buf_len);
-        auto demux = std::any_cast<std::shared_ptr<MpegTsDemuxer> &>(handler->demuxer);
-        demux->decode(in);
+        //auto demux = std::any_cast<std::shared_ptr<MpegTsDemuxer> &>(handler->demuxer);
+        handler->demuxer->decode(in);
     }
 }
 
@@ -416,8 +416,8 @@ JNIEXPORT void JNICALL Java_org_red5_mpeg_TSHandler_mux(JNIEnv *env, jclass claz
         esFrame.mExpectedPesPacketLength = 0;
         esFrame.mCompleted = true;
         // Multiplex your data
-        auto mux = std::any_cast<std::shared_ptr<MpegTsMuxer> &>(handler->muxer);
-        mux->encode(esFrame);
+        //auto mux = std::any_cast<std::shared_ptr<MpegTsMuxer> &>(handler->muxer);
+        handler->muxer->encode(esFrame);
     }
 }
 
