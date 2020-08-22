@@ -18,6 +18,9 @@ public class TSConfig {
     // mpeg-ts options (0 = not set)
     public short pmtPid, audioPid, videoPid, metaPid;
 
+    // mpeg-ts es data stream id
+    public byte streamId;
+
     // used for connection identification
     public int connectionId;
 

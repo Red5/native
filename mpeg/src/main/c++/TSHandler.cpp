@@ -303,6 +303,10 @@ JNIEXPORT jlong JNICALL Java_org_red5_mpeg_TSHandler_createHandler(JNIEnv *env, 
         if (metaPid > 0) {
             mpegConfig->metaPid = metaPid;
         }
+        uint8_t streamId = (uint8_t) env->GetByteField(config, env->GetFieldID(class_Config, "streamId", "B"));
+        if (streamId > 0) {
+            mpegConfig->streamId = streamId;
+        }
         // set the config on the handler
         handler->config = mpegConfig;
         // get jvm so we can attach later and call receive method
@@ -381,7 +385,6 @@ JNIEXPORT void JNICALL Java_org_red5_mpeg_TSHandler_demux(JNIEnv *env, jclass cl
         //std::cout << "Sync byte? " << unsigned(buf[0]) << std::endl;
         SimpleBuffer in;
         in.append((uint8_t*) &buf[0], buf_len);
-        //auto demux = std::any_cast<std::shared_ptr<MpegTsDemuxer> &>(handler->demuxer);
         handler->demuxer->decode(in);
     }
 }
@@ -410,13 +413,12 @@ JNIEXPORT void JNICALL Java_org_red5_mpeg_TSHandler_mux(JNIEnv *env, jclass claz
         esFrame.mPts = pts;
         esFrame.mDts = pts;
         esFrame.mPcr = 0;
-        esFrame.mStreamType = type; //TYPE_AUDIO;
-        esFrame.mStreamId = 224;
-        esFrame.mPid = pid; //AUDIO_PID;
+        esFrame.mStreamType = type;
+        esFrame.mStreamId = handler->config->streamId;
+        esFrame.mPid = pid;
         esFrame.mExpectedPesPacketLength = 0;
         esFrame.mCompleted = true;
         // Multiplex your data
-        //auto mux = std::any_cast<std::shared_ptr<MpegTsMuxer> &>(handler->muxer);
         handler->muxer->encode(esFrame);
     }
 }

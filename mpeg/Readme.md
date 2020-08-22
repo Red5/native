@@ -20,9 +20,9 @@ The following features are targeted for this project:
 
 ## Prerequisites
 
-### Linux
-
 SDL2 and OpenGL are needed for the player test app `pl_mpeg_player.c`; they are not needed to build the dist files. The player code is disabled in the pom so to build it, you must use your compiler directly; I recommend VS Code.
+
+### Linux
 
 ```sh
 sudo apt install libglm-dev libglew-dev libsdl2-dev
@@ -33,18 +33,6 @@ sudo apt install libglm-dev libglew-dev libsdl2-dev
 [GLEW](https://www.opengl.org/sdk/libs/GLEW/)
 
 [SDL2](https://www.libsdl.org/download-2.0.php)
-
-Build problem on windows:
-
-```sh
-[INFO] OUTPUT>simple_buffer.cpp
-[ERROR] OUTPUT>C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.26.28801\include\any(429): error C2338: any_cast<T>(any&&) requires T to be constructible from remove_cv_t<remove_reference_t<T>>
-[INFO] OUTPUT>c++/TSHandler.cpp(384): note: see reference to function template instantiation '_Ty &std::any_cast<std::shared_ptr<MpegTsDemuxer>&>(std::any &&)' being compiled
-[INFO] OUTPUT>        with
-[INFO] OUTPUT>        [
-[INFO] OUTPUT>            _Ty=std::shared_ptr<MpegTsDemuxer> &
-[INFO] OUTPUT>        ]
-```
 
 ## Test
 

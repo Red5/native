@@ -39,8 +39,11 @@ extern "C" {
 // PMT PID
 #define PMT_PID 100
 
-// fourCC
+// fourCC - http://www.fourcc.org/codecs.php
+const uint32_t TYPE_MP2A = (('M'<<24) | ('P'<<16) | ('2'<<8) | 'A');
 const uint32_t TYPE_ADTS = (('A'<<24) | ('D'<<16) | ('T'<<8) | 'S');
+const uint32_t TYPE_I420 = (('I'<<24) | ('4'<<16) | ('2'<<8) | '0');
+const uint32_t TYPE_MP1V = (('M'<<24) | ('P'<<16) | ('1'<<8) | 'V'); // MPEG, MPG1, MP1V
 const uint32_t TYPE_H264 = (('H'<<24) | ('2'<<16) | ('6'<<8) | '4');
 
 // all the fields needed to configure the handler
@@ -60,6 +63,7 @@ typedef struct config_t {
     uint16_t audioPid = 0;
     uint16_t videoPid = 0;
     uint16_t metaPid = 0;
+    uint8_t streamId = 224; // 0xe0
 } config_t;
 
 // global static reference for the JVM
