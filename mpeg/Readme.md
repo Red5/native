@@ -50,6 +50,16 @@ Test with `ts` file:
 java -Djava.library.path=target/nar/red5-mpeg-1.0.0-SNAPSHOT-amd64-Linux-gpp-jni/lib/amd64-Linux-gpp/jni -cp target/lib/slf4j-api-1.7.30.jar:target/lib/logback-core-1.2.3.jar:target/lib/logback-classic-1.2.3.jar:target/red5-mpeg-1.0.0-SNAPSHOT.jar org.red5.mpeg.Main TestRun src/main/resources/bars.ts
 ```
 
+### Ingest Listener Endpoint
+
+To create a listener end-point for mpeg1video and mp2 audio, make a GET request to: `http://localhost:5080/mpeg/createingest?action=create&port=49152&name=stream1&audio=MP2A&video=MP1V`
+
+Then use a tool such as ffmpeg to publish to the end-point:
+
+```sh
+ffmpeg -i somevideofile -f mpegts -c:v mpeg1video -b:v 1M -c:a mp2 -b:a 128k -ar 44100 "udp://127.0.0.1:49152"
+```
+
 ## References
 
  * [Red5 Ticket](https://github.com/Red5/red5-server/issues/283)

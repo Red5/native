@@ -20,4 +20,12 @@
         <dispatcher>REQUEST</dispatcher>
         <dispatcher>FORWARD</dispatcher>
     </filter-mapping>
+    <servlet>
+        <servlet-name>createingest</servlet-name>
+        <servlet-class>org.red5.mpeg.servlet.CreateIngestServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>createingest</servlet-name>
+        <url-pattern>/createingest</url-pattern>
+    </servlet-mapping> 
 </web-app>

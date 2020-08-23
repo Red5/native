@@ -41,6 +41,8 @@ import org.red5.server.stream.IProviderService;
 import org.red5.server.stream.StreamService;
 import org.red5.server.util.ScopeUtils;
 
+import org.red5.mpeg.ws.WebSocketRouter;
+
 /**
  * Pseudo connection for ingesting MPEG-TS data.
  * 
@@ -52,6 +54,9 @@ public class TSIngestConnection extends RTMPConnection {
 
     // executor for listeners
     private static ExecutorService executor = Executors.newCachedThreadPool();
+
+    // websocket router for proxying data
+    private static WebSocketRouter router;
 
     // largest chunk size we'll attempt to read at once
     private static int datagramSize = 8192;
@@ -67,6 +72,9 @@ public class TSIngestConnection extends RTMPConnection {
 
     // if we're using multicast for receive
     private boolean multicast;
+
+    // whether or not we're proxying mpeg-ts directly to WebSocket connections
+    private boolean wsProxy = true;
 
     // fourCC codes for audio, video, and metadata
     private int audioFourCC, videoFourCC, metadataFourCC;
@@ -211,6 +219,10 @@ public class TSIngestConnection extends RTMPConnection {
         this.multicast = multicast;
     }
 
+    public static void setWebSocketRouter(WebSocketRouter router) {
+        TSIngestConnection.router = router;
+    }
+
     public class Listener {
 
         // datagram socket instance (DatagramSocket for unicast and MulticastSocket for multicast)
@@ -276,6 +288,13 @@ public class TSIngestConnection extends RTMPConnection {
                                 byte[] data = new byte[packet.getLength()];
                                 // copy the packet content to an array for the tsHandler
                                 System.arraycopy(packet.getData(), packet.getOffset(), data, 0, data.length);
+                                // if we proxying to websocket connections, send the data as-is to them
+                                if (wsProxy) {
+                                    // do this in a separate thread, we'll see if the data array can be shared...
+                                    executor.submit(() -> {
+                                        router.sendData(streamName, data);
+                                    });
+                                }
                                 // demux the data
                                 handler.demux(data);
                             } catch (Throwable t) {

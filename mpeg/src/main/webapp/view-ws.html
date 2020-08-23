@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 	<title>JSMpeg Stream Client</title>
 	<style type="text/css">
@@ -14,7 +14,7 @@
 	<script type="text/javascript" src="jsmpeg.min.js"></script>
 	<script type="text/javascript">
 		var canvas = document.getElementById('video-canvas');
-		var url = 'ws://'+document.location.hostname+':5080/mpeg?streamName=test';
+		var url = 'ws://'+document.location.hostname+':5080/mpeg?streamName=stream1';
 		var player = new JSMpeg.Player(url, {canvas: canvas});
 	</script>
 </body>

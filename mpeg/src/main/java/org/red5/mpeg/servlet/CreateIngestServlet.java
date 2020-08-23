@@ -25,6 +25,7 @@ import org.springframework.web.context.WebApplicationContext;
 import org.red5.mpeg.Main;
 import org.red5.mpeg.PayloadType;
 import org.red5.mpeg.TSIngestConnection;
+import org.red5.mpeg.ws.WebSocketRouter;
 
 /**
  * This servlet provides create and kill actions for a mpeg-ts ingest stream. Requests are handled as simple key/value via HTTP.GET
@@ -63,6 +64,8 @@ public class CreateIngestServlet extends HttpServlet {
             StatefulScopeWrappingAdapter app = (StatefulScopeWrappingAdapter) appCtx.getBean("web.handler");
             appScope = app.getScope();
             logger.debug("Application scope: {}", appScope);
+            WebSocketRouter router = (WebSocketRouter) appCtx.getBean("router");
+            TSIngestConnection.setWebSocketRouter(router);
         }
         // get the requested action
         String action = request.getParameter("action");
@@ -86,11 +89,18 @@ public class CreateIngestServlet extends HttpServlet {
                 response.sendError(409, "Stream name conflict, already in-use");
             } else {
                 String host = Optional.ofNullable(request.getParameter("host")).orElse("127.0.0.1");
+                // TODO determine if multicast is requested by looking at the host address; check for class D
                 int port = Integer.valueOf(request.getParameter("port"));
-                int audioFourCC = PayloadType.TYPE_ADTS.typeId, videoFourCC = PayloadType.TYPE_H264.typeId, metadataFourCC = 0;
+                PayloadType audio = PayloadType.valueOf(String.format("TYPE_%s", Optional.ofNullable(request.getParameter("audio")).orElse("ADTS").toUpperCase()));
+                PayloadType video = PayloadType.valueOf(String.format("TYPE_%s", Optional.ofNullable(request.getParameter("video")).orElse("H264").toUpperCase()));
+                int audioFourCC = audio.typeId, videoFourCC = video.typeId, metadataFourCC = 0;
                 try {
                     // create an endpoint for ingest
                     TSIngestConnection conn = new TSIngestConnection();
+                    // if multicast is wanted, it has to be set before init
+                    if (request.getParameter("multicast") != null) {
+                        conn.setMulticast(true);
+                    }
                     if (conn.init(scope, streamName, host, port, audioFourCC, videoFourCC, metadataFourCC)) {
                         result = "Ingest configured and started successfully";
                     } else {
