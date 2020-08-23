@@ -22,4 +22,4 @@ Thanks to Dominic Szablewski for the original decoder / demuxer source.
 
 ## Licenses
 
-Licenses are included in the source unless otherwise specified in the readme file or located in the subdirectory for the project section.
+Licenses are included in the source unless otherwise specified in the readme file or located in the subdirectory for the project section. The overall license is APL 2.0.
