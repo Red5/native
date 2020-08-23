@@ -57,8 +57,12 @@ To create a listener end-point for mpeg1video and mp2 audio, make a GET request 
 Then use a tool such as ffmpeg to publish to the end-point:
 
 ```sh
-ffmpeg -i somevideofile -f mpegts -c:v mpeg1video -b:v 1M -c:a mp2 -b:a 128k -ar 44100 "udp://127.0.0.1:49152"
+ffmpeg -re -i SerenityTrailer.mp4 -f mpegts -c:v mpeg1video -b:v 1M -c:a mp2 -b:a 128k -ar 44100 "udp://127.0.0.1:49152"
 ```
+
+Open a brower and navigate to `http://localhost:5080/mpeg/view-ws.html`
+
+To kill the end-point `http://localhost:5080/mpeg/createingest?action=kill&name=stream1`
 
 ## References
 

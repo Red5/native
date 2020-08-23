@@ -265,7 +265,7 @@ JNIEXPORT jlong JNICALL Java_org_red5_mpeg_TSHandler_createHandler(JNIEnv *env, 
         config_t *mpegConfig = (config_t*) malloc(sizeof(config_t));
         // get the configuration class
         jclass class_Config = env->GetObjectClass(config);
-        /// name 
+        /// name (if null is passed, the server will crash)
         jstring strname = (jstring) env->CallObjectMethod(config, env->GetMethodID(class_Config, "getName", "()Ljava/lang/String;"));
         const char *name = env->GetStringUTFChars(strname, NULL);
         mpegConfig->mpegName = name;

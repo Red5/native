@@ -64,8 +64,6 @@ public class CreateIngestServlet extends HttpServlet {
             StatefulScopeWrappingAdapter app = (StatefulScopeWrappingAdapter) appCtx.getBean("web.handler");
             appScope = app.getScope();
             logger.debug("Application scope: {}", appScope);
-            WebSocketRouter router = (WebSocketRouter) appCtx.getBean("router");
-            TSIngestConnection.setWebSocketRouter(router);
         }
         // get the requested action
         String action = request.getParameter("action");
@@ -83,32 +81,41 @@ public class CreateIngestServlet extends HttpServlet {
             }
             IScope scope = StringUtils.isNotBlank(scopePath) ? ScopeUtils.resolveScope(appScope, scopePath) : appScope; // default to mpeg, our app
             logger.info("Stream: {} context path: {}", streamName, scope.getContextPath());
-            // check to see if the stream name on the given scope is available (not bound)
-            if (!isAvailable(scope, streamName)) {
-                // return resource already exists
-                response.sendError(409, "Stream name conflict, already in-use");
-            } else {
-                String host = Optional.ofNullable(request.getParameter("host")).orElse("127.0.0.1");
-                // TODO determine if multicast is requested by looking at the host address; check for class D
-                int port = Integer.valueOf(request.getParameter("port"));
-                PayloadType audio = PayloadType.valueOf(String.format("TYPE_%s", Optional.ofNullable(request.getParameter("audio")).orElse("ADTS").toUpperCase()));
-                PayloadType video = PayloadType.valueOf(String.format("TYPE_%s", Optional.ofNullable(request.getParameter("video")).orElse("H264").toUpperCase()));
-                int audioFourCC = audio.typeId, videoFourCC = video.typeId, metadataFourCC = 0;
-                try {
-                    // create an endpoint for ingest
-                    TSIngestConnection conn = new TSIngestConnection();
-                    // if multicast is wanted, it has to be set before init
-                    if (request.getParameter("multicast") != null) {
-                        conn.setMulticast(true);
+            if ("create".equals(action)) {
+                // check to see if the stream name on the given scope is available (not bound)
+                if (!isAvailable(scope, streamName)) {
+                    // return resource already exists
+                    response.sendError(409, "Stream name conflict, already in-use");
+                } else {
+                    String host = Optional.ofNullable(request.getParameter("host")).orElse("127.0.0.1");
+                    // TODO determine if multicast is requested by looking at the host address; check for class D
+                    int port = Integer.valueOf(request.getParameter("port"));
+                    PayloadType audio = PayloadType.valueOf(String.format("TYPE_%s", Optional.ofNullable(request.getParameter("audio")).orElse("ADTS").toUpperCase()));
+                    PayloadType video = PayloadType.valueOf(String.format("TYPE_%s", Optional.ofNullable(request.getParameter("video")).orElse("H264").toUpperCase()));
+                    int audioFourCC = audio.typeId, videoFourCC = video.typeId, metadataFourCC = 0;
+                    try {
+                        // create an endpoint for ingest
+                        TSIngestConnection conn = new TSIngestConnection();
+                        // if multicast is wanted, it has to be set before init
+                        if (request.getParameter("multicast") != null) {
+                            conn.setMulticast(true);
+                        }
+                        if (conn.init(scope, streamName, host, port, audioFourCC, videoFourCC, metadataFourCC)) {
+                            result = "Ingest configured and started successfully";
+                        } else {
+                            throw new Exception("Connection init failed");
+                        }
+                    } catch (Exception e) {
+                        logger.warn("Exception setting up stream", e);
+                        response.sendError(500, "Error setting up the stream ingest");
                     }
-                    if (conn.init(scope, streamName, host, port, audioFourCC, videoFourCC, metadataFourCC)) {
-                        result = "Ingest configured and started successfully";
-                    } else {
-                        throw new Exception("Connection init failed");
-                    }
-                } catch (Exception e) {
-                    logger.warn("Exception setting up stream", e);
-                    response.sendError(500, "Error setting up the stream ingest");
+                }
+            } else if ("kill".equals(action)) {
+                if (isAvailable(scope, streamName)) {
+                    response.sendError(409, "Stream name is not active");
+                } else {
+                    // TODO get the connection for the stream and close it
+                    result = "Ingest stopped";
                 }
             }
             if (result != null) {

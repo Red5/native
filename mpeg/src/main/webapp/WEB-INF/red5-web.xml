@@ -26,6 +26,7 @@
 	</bean>
 	<bean id="web.handler" class="org.red5.mpeg.Application" />
 	<!-- WebSocket scope and listener -->
+	<!--
 	<bean id="router" class="org.red5.mpeg.ws.WebSocketRouter" />
 	<bean id="webSocketScopeDefault" class="org.red5.net.websocket.WebSocketScope" lazy-init="true">
 		<constructor-arg ref="web.scope" />
@@ -35,4 +36,5 @@
 			</list>
 		</property>
 	</bean>
+    -->
 </beans>

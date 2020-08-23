@@ -54,7 +54,7 @@ const uint32_t TYPE_KLV = (('K'<<24) | ('L'<<16) | ('V'<<8) | 'A');
 // all the fields needed to configure the handler
 typedef struct config_t {
     // identifier for the instance (ex. stream name)
-    const char* mpegName;
+    const char* mpegName = "stream1\0";
     // audio
     // sample-rate
 	int sample_rate = 48000;

@@ -25,12 +25,6 @@ public class WebSocketRouter extends WebSocketDataListener {
 
     private CopyOnWriteArraySet<WebSocketConnection> connections = new CopyOnWriteArraySet<>();
 
-    private ExecutorService executor = Executors.newSingleThreadExecutor();
-
-    private Future<?> pinger;
-
-    private volatile boolean ping = true;
-
     @Override
     public void onWSConnect(WebSocketConnection conn) {
         log.info("Connect: {}", conn);
@@ -38,47 +32,21 @@ public class WebSocketRouter extends WebSocketDataListener {
         // query string usage
         Map<String, Object> qparams = conn.getQuerystringParameters();
         log.debug("Query Str params: {}", qparams);
-        Object[] params = {};
         if (qparams != null && !qparams.isEmpty()) {
-            params = new Object[qparams.size()];
             int i = 0;
-            for (Map.Entry<String, Object> entry : qparams.entrySet()) {
-                String key = entry.getKey();
+            qparams.forEach((key, value) -> {
                 char prefix = key.charAt(0);
                 // strip any 'bad' prefixing of the key / name
                 key = (prefix == '?' || prefix == '&') ? key.substring(1) : key;
+                log.debug("Key: {} value: {}", key, value);
                 // look for stream name
                 if ("streamName".equals(key)) {
                     // set the stream name so we can send the data their interested in
-                    conn.setAttribute("streamName", entry.getValue());
+                    conn.setAttribute("streamName", value);
                 }
-                params[i] = key + '=' + entry.getValue();
-                i++;
-            }
-        }
-        // add a pinger
-        if (pinger == null) {
-            pinger = executor.submit(() -> {
-                do {
-                    try {
-                        // sleep 2 seconds
-                        Thread.sleep(2000L);
-                        // create a ping packet
-                        byte[] ping = "PING!".getBytes();
-                        // loop through the connections and ping them
-                        connections.forEach(c -> {
-                            try {
-                                c.send(ping);
-                            } catch (Throwable t) {
-                                log.warn("Exception in ping send", t);
-                            }
-                        });
-                    } catch (Throwable t) {
-                        log.warn("Exception in pinger", t);
-                    }
-                } while (ping);
             });
         }
+        log.debug("Connection tagged for stream: {}", conn.getAttribute("streamName"));
     }
 
     @Override
@@ -123,6 +91,7 @@ public class WebSocketRouter extends WebSocketDataListener {
     public void sendData(String streamName, byte[] data) {
         connections.forEach(conn -> {
             if (streamName.equals(conn.getStringAttribute("streamName"))) {
+                log.debug("Found a match for stream name, sending data");
                 try {
                     conn.send(data);
                 } catch (Throwable t) {
@@ -133,10 +102,8 @@ public class WebSocketRouter extends WebSocketDataListener {
 
     @Override
     public void stop() {
-        // stop the pinging
-        ping = false;
-        pinger.cancel(false);
-        executor.shutdownNow();
+        connections.forEach(conn -> conn.close());
+        connections.clear();
     }
 
 }

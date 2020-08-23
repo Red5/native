@@ -6,6 +6,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.concurrent.*;
 import java.util.*;
@@ -61,8 +62,8 @@ public class TSIngestConnection extends RTMPConnection {
     // largest chunk size we'll attempt to read at once
     private static int datagramSize = 8192;
 
-    // socket idle timeout value in milliseconds
-    public static long socketIdleTimeout = 8000;
+    // socket idle timeout value in milliseconds (default 2 minutes)
+    public static long socketIdleTimeout = 2 * (60 * 1000);
 
     // host to listen on
     private String host;
@@ -141,7 +142,7 @@ public class TSIngestConnection extends RTMPConnection {
             // instance the listener
             listener = new Listener();
             // start listening
-            listener.start();
+            listener.start(streamName);
             // making it this far implies that we're good to go!
             return true;
         } else {
@@ -239,7 +240,7 @@ public class TSIngestConnection extends RTMPConnection {
 
         StreamCodecInfo codecInfo;
 
-        public void start() {
+        public void start(final String streamName) {
             logger.info("MPEG-TS listener starting on: {}", port);
             try {
                 // join the address or multicast group
@@ -274,7 +275,7 @@ public class TSIngestConnection extends RTMPConnection {
                     do {
                         TSPacket pkt = receiver.getNext();
                         if (pkt != null) {
-                            logger.info("Received: {}", pkt.getPayload().length);
+                            //logger.trace("Received: {}", pkt.getPayload().length);
                             // only demuxed ts should show up here
                             if (!pkt.isMpegTs()) {
                                 process(pkt);
@@ -291,13 +292,18 @@ public class TSIngestConnection extends RTMPConnection {
                                 System.arraycopy(packet.getData(), packet.getOffset(), data, 0, data.length);
                                 // if we proxying to websocket connections, send the data as-is to them
                                 if (wsProxy) {
+                                    //logger.debug("Proxy/relay data");
                                     // do this in a separate thread, we'll see if the data array can be shared...
-                                    executor.submit(() -> {
+                                    //executor.submit(() -> {
+                                        //logger.debug("Send data for {}", streamName);
                                         router.sendData(streamName, data);
-                                    });
+                                    //});
                                 }
                                 // demux the data
                                 handler.demux(data);
+                            } catch (SocketTimeoutException e) {
+                                logger.debug("Socket timed-out, closing");
+                                break;
                             } catch (Throwable t) {
                                 if (t.getMessage().contains("closed")) {
                                     logger.debug("Socket was closed during receive");
