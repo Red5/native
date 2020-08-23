@@ -4,4 +4,6 @@ src/main/c++/pl_mpeg_player
 target/
 lib/
 
+*.sh
+*.bat
 
