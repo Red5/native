@@ -265,11 +265,9 @@ JNIEXPORT jlong JNICALL Java_org_red5_mpeg_TSHandler_createHandler(JNIEnv *env, 
         config_t *mpegConfig = (config_t*) malloc(sizeof(config_t));
         // get the configuration class
         jclass class_Config = env->GetObjectClass(config);
-        /// name
+        /// name 
         jstring strname = (jstring) env->CallObjectMethod(config, env->GetMethodID(class_Config, "getName", "()Ljava/lang/String;"));
-        char *name = new char[128];
-        jsize jlen = env->GetStringLength(strname);
-        env->GetStringUTFRegion(strname, 0, jlen, name);
+        const char *name = env->GetStringUTFChars(strname, NULL);
         mpegConfig->mpegName = name;
         /// width / height
         int width = (int) env->GetIntField(config, env->GetFieldID(class_Config, "width", "I"));
