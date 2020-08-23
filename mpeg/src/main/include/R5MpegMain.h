@@ -32,6 +32,8 @@ extern "C" {
 // h264 video (27)
 #define TYPE_VIDEO 0x1b
 
+// Metadata PID
+#define META_PID 258
 // Audio PID
 #define AUDIO_PID 257
 // Video PID
@@ -45,6 +47,9 @@ const uint32_t TYPE_ADTS = (('A'<<24) | ('D'<<16) | ('T'<<8) | 'S');
 const uint32_t TYPE_I420 = (('I'<<24) | ('4'<<16) | ('2'<<8) | '0');
 const uint32_t TYPE_MP1V = (('M'<<24) | ('P'<<16) | ('1'<<8) | 'V'); // MPEG, MPG1, MP1V
 const uint32_t TYPE_H264 = (('H'<<24) | ('2'<<16) | ('6'<<8) | '4');
+const uint32_t TYPE_HEVC = (('H'<<24) | ('E'<<16) | ('V'<<8) | 'C');
+const uint32_t TYPE_ID3 = (('I'<<24) | ('D'<<16) | ('3'<<8) | ' ');
+const uint32_t TYPE_KLV = (('K'<<24) | ('L'<<16) | ('V'<<8) | 'A');
 
 // all the fields needed to configure the handler
 typedef struct config_t {

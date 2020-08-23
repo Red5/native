@@ -15,37 +15,6 @@ public class TSPacket {
 
     private static Logger log = LoggerFactory.getLogger(TSPacket.class);
 
-    /**
-     * Payload types we'll expect at time of writing. Any h.264 or h.265 will be expected in Annex-B format.
-     */
-    public static enum PayloadType {
-        TYPE_UNKNOWN(0), TYPE_AUDIO(8), TYPE_VIDEO(9), TYPE_META(12), TYPE_I420('I', '4', '2', '0'), TYPE_ADTS('A', 'D', 'T', 'S'), TYPE_H264('H', '2', '6', '4'), TYPE_HEVC('H', 'E', 'V', 'C');
-
-        final Integer typeId;
-
-        static final Map<Integer, PayloadType> BY_VALUE = new HashMap<>();
-    
-        static {
-            for (PayloadType e: values()) {
-                log.debug("Adding payload type to map: {} {}", e.name(), e.typeId);
-                BY_VALUE.put(e.typeId, e);
-            }
-        }
-
-        PayloadType(char... typeArray) {
-            // big-endian to match C/C++ side
-            this.typeId = ((typeArray[0] << 24) | (typeArray[1] << 16) | (typeArray[2] << 8) | typeArray[3]);
-        }
-
-        PayloadType(int typeId) {
-            this.typeId = typeId;
-        }
-
-        public static PayloadType valueOfTypeId(int typeId) {
-            return BY_VALUE.get(typeId);
-        }
-    }
-
     private final long timestamp;
 
     // payload can be either byte[] or short[]
@@ -107,16 +76,20 @@ public class TSPacket {
         switch (type) {
             case TYPE_AUDIO:
             case TYPE_ADTS:
+            case TYPE_MP2A:
                 this.audio = true;
                 this.video = false;
                 break;
             case TYPE_VIDEO:
             case TYPE_H264:
             case TYPE_HEVC:
+            case TYPE_MP1V:
                 this.audio = false;
                 this.video = true;
                 break;
             case TYPE_META:
+            case TYPE_ID3:
+            case TYPE_KLV:
                 this.audio = false;
                 this.video = false;
                 break;

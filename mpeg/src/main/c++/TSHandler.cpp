@@ -396,9 +396,10 @@ JNIEXPORT void JNICALL Java_org_red5_mpeg_TSHandler_demux(JNIEnv *env, jclass cl
  * @param data byte array holding data to mux
  * @param pts presentation timestamp
  * @param type stream type
- * @param pid 
+ * @param pid
+ * @param streamId ES stream id for the data
  */
-JNIEXPORT void JNICALL Java_org_red5_mpeg_TSHandler_mux(JNIEnv *env, jclass clazz, jlong id, jbyteArray data, jlong pts, jbyte type, jshort pid) {
+JNIEXPORT void JNICALL Java_org_red5_mpeg_TSHandler_mux(JNIEnv *env, jclass clazz, jlong id, jbyteArray data, jlong pts, jbyte type, jshort pid, jbyte streamId) {
     std::cout << "Mux" << std::endl;
     TSHandler *handler = mpeg_ctx.getHandler(id);
     if (handler != 0) {
@@ -414,7 +415,7 @@ JNIEXPORT void JNICALL Java_org_red5_mpeg_TSHandler_mux(JNIEnv *env, jclass claz
         esFrame.mDts = pts;
         esFrame.mPcr = 0;
         esFrame.mStreamType = type;
-        esFrame.mStreamId = handler->config->streamId;
+        esFrame.mStreamId = streamId;
         esFrame.mPid = pid;
         esFrame.mExpectedPesPacketLength = 0;
         esFrame.mCompleted = true;

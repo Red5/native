@@ -19,7 +19,7 @@ public class TSConfig {
     public short pmtPid, audioPid, videoPid, metaPid;
 
     // mpeg-ts es data stream id
-    public byte streamId;
+    public byte streamId = (byte) 0xe0; // default id, start of video range
 
     // used for connection identification
     public int connectionId;

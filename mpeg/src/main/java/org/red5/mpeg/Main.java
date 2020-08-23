@@ -317,14 +317,14 @@ public class Main {
                                 // calculate pts
                                 apts += 48000 / 60;
                                 // mux audio
-                                handler.mux(pkt.getPayload(), apts, type, pid);
+                                handler.mux(pkt.getPayload(), apts, type, pid, (byte) 0xc0);
                             } else if (pkt.isVideo()) {
                                 type = TYPE_VIDEO;
                                 pid = config.videoPid;
                                 // calculate pts
                                 vpts += 90000 / 60;
                                 // mux video
-                                handler.mux(pkt.getPayload(), vpts, type, pid);
+                                handler.mux(pkt.getPayload(), vpts, type, pid, (byte) 0xe0);
                             }
                         }
                     } else {

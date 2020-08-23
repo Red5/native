@@ -52,7 +52,7 @@ public class TSHandler {
     /**
      * Mux data into MPEG-TS via the TS handler matching the given id.
      */
-    private native void mux(long id, byte[] data, long pts, byte type, short pid);
+    private native void mux(long id, byte[] data, long pts, byte type, short pid, byte streamId);
 
     /**
      * Destroys the handler matching the given id.
@@ -106,7 +106,20 @@ public class TSHandler {
      * @param pid 
      */
     public void mux(byte[] data, long pts, byte type, short pid) {
-        mux(handlerId, data, pts, type, pid);
+        mux(handlerId, data, pts, type, pid, config.streamId);
+    }
+
+    /**
+     * Mux TS data. If data is muxed, it is returned via the receiver.
+     * 
+     * @param data
+     * @param pts presentation timestamp
+     * @param type stream type
+     * @param pid 
+     * @param streamId
+     */
+    public void mux(byte[] data, long pts, byte type, short pid, byte streamId) {
+        mux(handlerId, data, pts, type, pid, streamId);
     }
 
     /**
