@@ -417,9 +417,7 @@
                             <warName>mpeg</warName>
                             <excludeScope>provided</excludeScope>
                             <excludeTransitive>true</excludeTransitive>
-                            <packagingExcludes>
-                                WEB-INF/classes/*.mpg, WEB-INF/classes/*.ts
-                            </packagingExcludes>
+                            <packagingExcludes>WEB-INF/classes/*.mpg, WEB-INF/classes/*.ts, WEB-INF/lib/*.jar</packagingExcludes>
                         </configuration>
                     </plugin>
                 </plugins>

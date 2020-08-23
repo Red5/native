@@ -132,6 +132,7 @@ public class TSIngestConnection extends RTMPConnection {
             bsScope.setClientBroadcastStream(stream);
             ((BaseConnection) this).registerBasicScope(bsScope);
             logger.debug("Scope: {} registered with connection: {}", bsScope.getPath(), getSessionId());
+            // set the "duty" of this connection which is publishing
             setDuty(Duty.PUBLISHER);
             // start the stream
             stream.start();

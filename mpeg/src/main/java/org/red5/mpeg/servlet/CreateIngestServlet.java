@@ -83,8 +83,8 @@ public class CreateIngestServlet extends HttpServlet {
             }
             IScope scope = StringUtils.isNotBlank(scopePath) ? ScopeUtils.resolveScope(appScope, scopePath) : appScope; // default to mpeg, our app
             logger.info("Stream: {} context path: {}", streamName, scope.getContextPath());
-            // check to see if the stream is available
-            if (isAvailable(scope, streamName)) {
+            // check to see if the stream name on the given scope is available (not bound)
+            if (!isAvailable(scope, streamName)) {
                 // return resource already exists
                 response.sendError(409, "Stream name conflict, already in-use");
             } else {

@@ -30,15 +30,15 @@ public class Main {
 
     private static Logger log = LoggerFactory.getLogger(Main.class);
 
+    // used in main for testing
+    private static final char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
+
     // debugging use
     @SuppressWarnings("unused")
     private static boolean debug;
 
-    // use System.load to force loading of libraries before this library itself
-    private static boolean forceLoad = true;
-
-    // libraries being force-loaded if flag is set to true
-    private static List<String> forcedLoadPaths;
+    // full path to the main lib
+    private static String mpegPath = null;
 
     // static atomic loaded flag
     private static final AtomicBoolean loaded = new AtomicBoolean(false);
@@ -50,7 +50,7 @@ public class Main {
     private static String osDescriptor = getAOL();
 
     // library name for our primary shared lib
-    private static String libraryName;
+    private static String libraryName = "red5-mpeg-1.0.0";
 
     /**
      * Load jni library
@@ -74,99 +74,43 @@ public class Main {
                     jarPath = jarPath.substring(1);
                 }
                 log.debug("Jar path: {}", jarPath);
-                // grab the library name from the jar path for possible use further along
-                libraryName = jarPath.substring(jarPath.lastIndexOf('/') + 1, jarPath.lastIndexOf(".jar"));
+                // do this if we're in a jar
+                if (jarPath.contains(".jar")) {
+                    // grab the library name from the jar path for possible use further along
+                    libraryName = jarPath.substring(jarPath.lastIndexOf('/') + 1, jarPath.lastIndexOf(".jar"));
+                    // extract the shared libs
+                    try {
+                        // if the force load flag is set, we will also System.load the libs
+                        extractShared(jarPath);
+                    } catch (Exception e) {
+                        log.warn("Exception extracting shared libraries", e);
+                    }
+                } else {
+                    // assuming we're in a webapp structure strip the path to WEB-INF
+                    mpegPath = jarPath.substring(0, jarPath.indexOf("classes/org/red5/mpeg/Main.class"));
+                    // construct the path to the shared lib
+                    if (osDescriptor.contains("Windows")) {
+                        mpegPath = String.format("%slib/%s.dll", mpegPath, libraryName);
+                    } else {
+                        mpegPath = String.format("%slib/lib%s.so", mpegPath, libraryName);
+                    }
+                }
                 log.debug("Library name: {}", libraryName);
             } catch (Exception e) {
                 log.warn("Exception determining jar name/path", e);
             }
-            // extract the shared libs
+            log.debug("Load library: {}", mpegPath);
             try {
-                // if the force load flag is set, we will also System.load the libs
-                extractShared(jarPath);
-            } catch (Exception e) {
-                log.warn("Exception extracting shared libraries", e);
-            }
-            // full path to the main lib
-            String mpegPath = null;
-            // System.load if flag is set
-            if (forceLoad && forcedLoadPaths != null) {
-                log.debug("Libraries to load: {}", forcedLoadPaths);
-                for (String filePath : forcedLoadPaths) {
-                    try {
-                        Path absPath = Paths.get(filePath).normalize();
-                        File file = absPath.toFile();
-                        if (!Files.isSymbolicLink(absPath) && file.length() > 64) {
-                            // skip loading lib here to prevent issues with dep libs
-                            if (filePath.contains("red5-mpeg-")) {
-                                log.debug("Skipping mpeg: {}", filePath);
-                                mpegPath = filePath;
-                            } else {
-                                log.debug("Load path: {}", filePath);
-                                try {
-                                    if (file.exists()) {
-                                        log.debug("Can read: {} execute: {}", file.canRead(), file.canExecute());
-                                        System.load(file.getAbsolutePath());
-                                        log.info("Library loaded: {}", filePath);
-                                    } else {
-                                        throw new Exception("File not found: " + filePath);
-                                    }
-                                } catch (Throwable e1) {
-                                    // we only really care about this when we're debugging, otherwise it may just look like noise in the logs
-                                    if (log.isDebugEnabled()) {
-                                        // skip all the `file too short` exceptions, just annoying
-                                        if (e1 instanceof UnsatisfiedLinkError && !e1.getMessage().contains("too short")) {
-                                            log.warn("Link error on load", e1);
-                                        }
-                                    }
-                                    // the next lines will attempt to load a native lib that was not absolutely resolved from the "system"
-                                    int slashPos = filePath.lastIndexOf('/');
-                                    String libName = filePath.substring(slashPos + 1, filePath.indexOf('.', slashPos));
-                                    log.debug("Library name: {} normalized: {}", libName, libName.substring(3));
-                                    try {
-                                        if (libName.startsWith("lib")) {
-                                            System.loadLibrary(libName.substring(3));
-                                        } else {
-                                            System.loadLibrary(libName);
-                                        }
-                                        log.info("Library loaded: {}", filePath);
-                                    } catch (Throwable e2) {
-                                        if (log.isDebugEnabled()) {
-                                            // skip all the `file too short` exceptions, just annoying
-                                            if (e2 instanceof UnsatisfiedLinkError && !e2.getMessage().contains("too short")) {
-                                                log.warn("Link error on loadLibrary: {}", libName, e2);
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        } else {
-                            log.debug("Skipping non-binary: {}", filePath);
-                        }
-                    } catch (Exception e) {
-                        log.warn("Exception loading: {}", filePath);
-                    }
-                }
-            }
-            // try if the library is on the configured library path
-            if (mpegPath != null) {
-                log.debug("Load library: {}", mpegPath);
-                try {
+                if (mpegPath != null) {
                     System.load(mpegPath);
-                    log.info("Red5 MPEG library loaded");
-                } catch (Exception e) {
-                    log.warn("Exception loading: {}", mpegPath, e);
-                    return;
-                }
-            } else {
-                log.warn("MPEG path was null, attempting loadLibrary instead");
-                try {
+                    log.info("Red5 MPEG library loaded via direct path");
+                } else {
                     System.loadLibrary(libraryName);
                     log.info("Red5 MPEG library loaded");
-                } catch (Exception e) {
-                    log.warn("Exception loading", e);
-                    return;
                 }
+            } catch (Exception e) {
+                log.warn("Exception loading: {}", mpegPath, e);
+                return;
             }
             // set to true if we get this far
             loaded.compareAndSet(false, true);
@@ -219,12 +163,9 @@ public class Main {
                                 log.debug("Extract {} to {}", libraryFileName, filePath);
                                 extractFile(zis, filePath);
                                 zis.closeEntry();
-                                if (forceLoad) {
-                                    log.info("Storing library path for forced loading: {}", filePath);
-                                    if (forcedLoadPaths == null) {
-                                        forcedLoadPaths = new ArrayList<>();
-                                    }
-                                    forcedLoadPaths.add(filePath);
+                                log.info("Storing library path: {}", filePath);
+                                if (filePath.contains("red5-mpeg")) {
+                                    mpegPath = filePath;
                                 }
                             } else {
                                 log.debug("Skipping directory");
@@ -257,12 +198,22 @@ public class Main {
         bos.close();
     }
 
-    public static void setForceLoad(boolean forceLoad) {
-        Main.forceLoad = forceLoad;
+    public final static byte[] intArrayToByteArray(int... ints) {
+        byte[] data = new byte[ints.length];
+        for (int i = 0; i < ints.length; i++) {
+            data[i] = (byte) ((ints[i] & 0x000000FF) >> 0);
+        }
+        return data;
     }
 
-    public static void setForcedLoadPaths(List<String> forcedLoadPaths) {
-        Main.forcedLoadPaths = forcedLoadPaths;
+    public static String byteArrayToHexString(byte[] bytes) {
+        char[] hexChars = new char[bytes.length * 2];
+        for (int j = 0; j < bytes.length; j++) {
+            int v = bytes[j] & 0xFF;
+            hexChars[j * 2] = HEX_ARRAY[v >>> 4];
+            hexChars[j * 2 + 1] = HEX_ARRAY[v & 0x0F];
+        }
+        return new String(hexChars);
     }
 
     public static void main(String[] args) throws Exception {
@@ -404,26 +355,6 @@ public class Main {
         } else {
             System.out.println("Usage: Main [name]");
         }
-    }
-
-    public final static byte[] intArrayToByteArray(int... ints) {
-        byte[] data = new byte[ints.length];
-        for (int i = 0; i < ints.length; i++) {
-            data[i] = (byte) ((ints[i] & 0x000000FF) >> 0);
-        }
-        return data;
-    }
-
-    private static final char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
-
-    public static String byteArrayToHexString(byte[] bytes) {
-        char[] hexChars = new char[bytes.length * 2];
-        for (int j = 0; j < bytes.length; j++) {
-            int v = bytes[j] & 0xFF;
-            hexChars[j * 2] = HEX_ARRAY[v >>> 4];
-            hexChars[j * 2 + 1] = HEX_ARRAY[v & 0x0F];
-        }
-        return new String(hexChars);
     }
 
 }
